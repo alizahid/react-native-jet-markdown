@@ -137,7 +137,12 @@ export function KitchenSink() {
       <FastMarkdownView
         images={images}
         markdown={MARKDOWN}
-        onImagePress={({ url }) => Alert.alert("onImagePress", url)}
+        onImagePress={({ url, x, y, width, height }) =>
+          Alert.alert(
+            "onImagePress",
+            `${url}\n${width.toFixed(0)}x${height.toFixed(0)} @ (${x.toFixed(0)}, ${y.toFixed(0)})`
+          )
+        }
         onLinkLongPress={({ url }) => Alert.alert("onLinkLongPress", url)}
         onLinkPress={({ url }) => Alert.alert("onLinkPress", url)}
         style={markdownStyle}

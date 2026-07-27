@@ -33,6 +33,7 @@ using namespace facebook::react;
 @end
 
 static void FMDSetNeedsDisplayDeep(UIView *view);
+static CGRect FMDScreenFrameOfView(UIView *view);
 
 @implementation FastMarkdownView {
   NSString *_markdown;
@@ -198,7 +199,7 @@ static void FMDSetNeedsDisplayDeep(UIView *view);
   if ([view isKindOfClass:[FMDImageView class]]) {
     NSString *url = ((FMDImageView *)view).imageUrl;
     if (url != nil) {
-      [self imagePressed:url];
+      [self imagePressed:url frame:FMDScreenFrameOfView(view)];
     }
     return;
   }
@@ -275,10 +276,25 @@ static void FMDSetNeedsDisplayDeep(UIView *view);
   }
 }
 
-- (void)imagePressed:(NSString *)url {
+- (void)imagePressed:(NSString *)url frame:(CGRect)frame {
   if (const auto *emitter = [self markdownEventEmitter]) {
-    emitter->onImagePress({.url = std::string(url.UTF8String ?: "")});
+    emitter->onImagePress({
+        .height = frame.size.height,
+        .url = std::string(url.UTF8String ?: ""),
+        .width = frame.size.width,
+        .x = frame.origin.x,
+        .y = frame.origin.y,
+    });
   }
+}
+
+static CGRect FMDScreenFrameOfView(UIView *view) {
+  CGRect frame = [view convertRect:view.bounds toView:nil];
+  UIWindow *window = view.window;
+  if (window != nil) {
+    frame = [window convertRect:frame toCoordinateSpace:window.screen.coordinateSpace];
+  }
+  return frame;
 }
 
 static void FMDSetNeedsDisplayDeep(UIView *view) {

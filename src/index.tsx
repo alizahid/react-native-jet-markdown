@@ -14,6 +14,7 @@ export type {
   MarkdownEditorState,
   MarkdownHeadingLevel,
   MarkdownImageData,
+  MarkdownImageEvent,
   MarkdownImageStyle,
   MarkdownInlineCodeStyle,
   MarkdownLayoutStyle,

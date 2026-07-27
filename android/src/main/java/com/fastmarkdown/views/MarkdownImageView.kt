@@ -30,7 +30,18 @@ class MarkdownImageView(context: Context) : ImageView(context) {
   init {
     scaleType = ScaleType.FIT_CENTER
     setOnClickListener {
-      block?.let { image -> host?.onImagePress(image.url) }
+      block?.let { image ->
+        val density = resources.displayMetrics.density
+        val location = IntArray(2)
+        getLocationOnScreen(location)
+        host?.onImagePress(
+          image.url,
+          location[0] / density,
+          location[1] / density,
+          width / density,
+          height / density,
+        )
+      }
     }
   }
 

@@ -7,7 +7,11 @@ import {
   serializeStyles,
   splitContainerStyle,
 } from "./serializeStyles";
-import type { FastMarkdownViewProps, MarkdownUrlEvent } from "./types";
+import type {
+  FastMarkdownViewProps,
+  MarkdownImageEvent,
+  MarkdownUrlEvent,
+} from "./types";
 
 export function FastMarkdownView({
   allowFontScaling,
@@ -34,8 +38,14 @@ export function FastMarkdownView({
       markdown={markdown}
       onImagePress={
         onImagePress
-          ? (event: NativeSyntheticEvent<MarkdownUrlEvent>) =>
-              onImagePress({ url: event.nativeEvent.url })
+          ? (event: NativeSyntheticEvent<MarkdownImageEvent>) =>
+              onImagePress({
+                height: event.nativeEvent.height,
+                url: event.nativeEvent.url,
+                width: event.nativeEvent.width,
+                x: event.nativeEvent.x,
+                y: event.nativeEvent.y,
+              })
           : undefined
       }
       onLinkLongPress={

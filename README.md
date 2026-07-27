@@ -76,7 +76,7 @@ const styles: MarkdownStyles = mergeStyles({
 | `images` | `{ url, width, height }[]` | Pre-sizing data. Listed images lay out at their final size immediately — zero layout shift. Unlisted images render a styled full-width, 200pt-tall placeholder, then snap to their real aspect once loaded. Loading runs on SDWebImage (iOS) and Glide (Android) — the same cores expo-image uses — with memory + disk caches, request dedupe, and animated GIF playback (plus APNG on iOS). |
 | `onLinkPress` | `({ url }) => void` | Link or mention tapped. Mentions arrive with their scheme (e.g. `users://ali`). |
 | `onLinkLongPress` | `({ url }) => void` | Link long-pressed. |
-| `onImagePress` | `({ url }) => void` | Image tapped. |
+| `onImagePress` | `({ url, x, y, width, height }) => void` | Image tapped. `width`/`height` are the rendered size and `x`/`y` the position relative to the screen (dp) — everything a lightbox needs for a zoom-from-thumbnail transition. |
 
 ## Styling
 

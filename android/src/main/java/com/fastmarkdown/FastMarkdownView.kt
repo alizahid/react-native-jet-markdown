@@ -82,17 +82,26 @@ class FastMarkdownView(context: Context) : ViewGroup(context), MarkdownHost {
 
   override fun onLinkLongPress(url: String) = emitUrlEvent("topLinkLongPress", url)
 
-  override fun onImagePress(url: String) = emitUrlEvent("topImagePress", url)
+  override fun onImagePress(url: String, xDp: Float, yDp: Float, widthDp: Float, heightDp: Float) =
+    emitEvent("topImagePress") {
+      putString("url", url)
+      putDouble("x", xDp.toDouble())
+      putDouble("y", yDp.toDouble())
+      putDouble("width", widthDp.toDouble())
+      putDouble("height", heightDp.toDouble())
+    }
 
-  private fun emitUrlEvent(name: String, url: String) {
+  private fun emitUrlEvent(name: String, url: String) =
+    emitEvent(name) { putString("url", url) }
+
+  private fun emitEvent(name: String, data: WritableMap.() -> Unit) {
     val reactContext = context as? com.facebook.react.bridge.ReactContext ?: return
     val dispatcher = UIManagerHelper.getEventDispatcherForReactTag(reactContext, id) ?: return
     val surfaceId = UIManagerHelper.getSurfaceId(reactContext)
     dispatcher.dispatchEvent(object : Event<Nothing>(surfaceId, id) {
       override fun getEventName(): String = name
 
-      override fun getEventData(): WritableMap =
-        Arguments.createMap().apply { putString("url", url) }
+      override fun getEventData(): WritableMap = Arguments.createMap().apply(data)
     })
   }
 

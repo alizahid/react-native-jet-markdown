@@ -7,5 +7,6 @@ interface MarkdownHost {
   fun toggleSpoiler(id: Int)
   fun onLinkPress(url: String)
   fun onLinkLongPress(url: String)
-  fun onImagePress(url: String)
+  /** Position and size describe the pressed image in screen coordinates, dp. */
+  fun onImagePress(url: String, xDp: Float, yDp: Float, widthDp: Float, heightDp: Float)
 }

@@ -248,6 +248,18 @@ export interface MarkdownUrlEvent {
   url: string;
 }
 
+export interface MarkdownImageEvent {
+  /** Height of the rendered image, in dp. */
+  height: number;
+  url: string;
+  /** Width of the rendered image, in dp. */
+  width: number;
+  /** Horizontal position of the rendered image relative to the screen, in dp. */
+  x: number;
+  /** Vertical position of the rendered image relative to the screen, in dp. */
+  y: number;
+}
+
 /**
  * The main container style: background, padding, and the gap between
  * blocks, plus base text styles that cascade into every text element
@@ -412,7 +424,7 @@ export interface FastMarkdownViewProps {
   images?: MarkdownImageData[];
   /** The markdown source to render. */
   markdown: string;
-  onImagePress?: (event: MarkdownUrlEvent) => void;
+  onImagePress?: (event: MarkdownImageEvent) => void;
   onLinkLongPress?: (event: MarkdownUrlEvent) => void;
   onLinkPress?: (event: MarkdownUrlEvent) => void;
   /**
