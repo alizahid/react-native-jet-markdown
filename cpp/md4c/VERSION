@@ -1,2 +1,1 @@
 release-0.5.3
-local patch: md_analyze_permissive_autolink rewritten for GFM extended autolinks (see the NOTE above that function in md4c.c; behavior pinned by cpp/tests/parser_tests.cpp)

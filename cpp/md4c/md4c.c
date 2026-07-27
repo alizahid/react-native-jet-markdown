@@ -3882,16 +3882,23 @@ md_scan_right_for_resolved_mark(MD_CTX* ctx, MD_MARK* mark_from, OFF off, MD_MAR
     return NULL;
 }
 
-/* NOTE (react-native-fast-markdown local patch): this function diverges from
- * the vendored md4c release recorded in cpp/md4c/VERSION. The URL/WWW branch
- * was rewritten to follow GFM "extended autolinks" (cmark-gfm
- * extensions/autolink.c): domain validation, greedy scan to the first
- * whitespace, then trimming of trailing punctuation / unbalanced ')' /
- * entity-like tails. Re-apply or port this patch when upgrading md4c;
- * cpp/tests/parser_tests.cpp pins the behavior. */
 static void
 md_analyze_permissive_autolink(MD_CTX* ctx, int mark_index)
 {
+    static const struct {
+        const MD_CHAR start_char;
+        const MD_CHAR delim_char;
+        const MD_CHAR* allowed_nonalnum_chars_inside;
+        const MD_CHAR* allowed_nonalnum_chars_anywhere;
+        int min_components;
+        const MD_CHAR optional_end_char;
+    } URL_MAP[] = {
+        { _T('\0'), _T('.'),  _T(".-_"),      _T(""),   2, _T('\0') },    /* host, mandatory */
+        { _T('/'),  _T('/'),  _T("/._"),      _T("+-"), 0, _T('/') },     /* path */
+        { _T('?'),  _T('&'),  _T("&.-+_=()"), _T(""),   1, _T('\0') },    /* query */
+        { _T('#'),  _T('\0'), _T(".-+_") ,    _T(""),   1, _T('\0') }     /* fragment */
+    };
+
     MD_MARK* opener = &ctx->marks[mark_index];
     MD_MARK* closer = &ctx->marks[mark_index + 1];  /* The dummy. */
     OFF line_beg = closer->beg;     /* md_collect_mark() set this for us */
@@ -3901,6 +3908,8 @@ md_analyze_permissive_autolink(MD_CTX* ctx, int mark_index)
     MD_MARK* left_cursor = opener;
     int left_boundary_ok = FALSE;
     MD_MARK* right_cursor = opener;
+    int right_boundary_ok = FALSE;
+    unsigned i;
 
     MD_ASSERT(closer->ch == 'D');
 
@@ -3937,37 +3946,44 @@ md_analyze_permissive_autolink(MD_CTX* ctx, int mark_index)
     if(!left_boundary_ok)
         return;
 
-    if(opener->ch == '@') {
-        /* E-mail autolink: scan the host with the strict rules: components
-         * of alphanumeric characters (with '-' and '_' allowed between them)
-         * separated with '.', at least two components. */
+    for(i = 0; i < SIZEOF_ARRAY(URL_MAP); i++) {
         int n_components = 0;
+        int n_open_brackets = 0;
         int component_len = 0;
-        int right_boundary_ok = FALSE;
+
+        if(URL_MAP[i].start_char != _T('\0')) {
+            if(end >= line_end  ||  CH(end) != URL_MAP[i].start_char)
+                continue;
+            if(URL_MAP[i].min_components > 0  &&  (end+1 >= line_end  ||  !ISALNUM(end+1)))
+                continue;
+            end++;
+        }
 
         while(end < line_end) {
-            if(ISALNUM(end)) {
+            if(ISALNUM(end)  ||  ISANYOF(end, URL_MAP[i].allowed_nonalnum_chars_anywhere)) {
                 if(n_components == 0)
                     n_components++;
                 component_len++;
                 end++;
-            } else if(component_len > 0  &&  CH(end) == _T('.')  &&
-                      end+1 < line_end  &&  ISALNUM(end+1)) {
+            } else if(component_len > 0  &&  CH(end) == URL_MAP[i].delim_char  &&  end+1 < line_end  &&
+                      (ISALNUM(end+1)  ||  ISANYOF(end+1, URL_MAP[i].allowed_nonalnum_chars_anywhere))) {
                 n_components++;
                 component_len = 0;
                 end++;
-            } else if(CH(end) == _T('.')  &&  ISALNUM(end-1)  &&
-                      end+1 < line_end  &&  CH(end+1) == _T('(')  &&
-                      md_scan_right_for_resolved_mark(ctx, right_cursor, end, &right_cursor) == NULL) {
-                /* Compatibility with the pre-GFM scanner: a '.' right before
-                 * a '(' is consumed, so the scan stops at the '(' and the
-                 * right-boundary check below rejects the autolink. */
-                component_len++;
-                end++;
-            } else if(ISANYOF2(end, _T('-'), _T('_'))  &&
+            } else if(ISANYOF(end, URL_MAP[i].allowed_nonalnum_chars_inside)  &&
                       md_scan_right_for_resolved_mark(ctx, right_cursor, end, &right_cursor) == NULL  &&
-                      ISALNUM(end-1)  &&
-                      end+1 < line_end  &&  ISALNUM(end+1)) {
+                      ((end > line_beg && (ISALNUM(end-1) || CH(end-1) == _T(')')))  ||  CH(end) == _T('('))  &&
+                      ((end+1 < line_end && (ISALNUM(end+1) || CH(end+1) == _T('(')))  ||  CH(end) == _T(')')))
+            {
+                /* brackets have to be balanced. */
+                if(CH(end) == _T('(')) {
+                    n_open_brackets++;
+                } else if(CH(end) == _T(')')) {
+                    if(n_open_brackets <= 0)
+                        break;
+                    n_open_brackets--;
+                }
+
                 component_len++;
                 end++;
             } else {
@@ -3975,116 +3991,30 @@ md_analyze_permissive_autolink(MD_CTX* ctx, int mark_index)
             }
         }
 
-        if(n_components < 2)
-            return;
-
-        /* Verify there's line boundary, whitespace, allowed punctuation or
-         * resolved emphasis mark just after the suspected autolink. */
-        if(end == line_end  ||  ISUNICODEWHITESPACE(end)  ||  ISANYOF(end, _T(")}].!?,;"))) {
-            right_boundary_ok = TRUE;
-        } else {
-            MD_MARK* right_mark;
-
-            right_mark = md_scan_right_for_resolved_mark(ctx, right_cursor, end, &right_cursor);
-            if(right_mark != NULL  &&  (right_mark->flags & MD_MARK_CLOSER))
-                right_boundary_ok = TRUE;
-        }
-        if(!right_boundary_ok)
-            return;
-    } else {
-        /* URL / WWW autolink: GFM-style "extended autolink". Validate the
-         * domain, then greedily consume everything up to the first whitespace
-         * and trim trailing characters the link most likely is not meant to
-         * include. */
-        OFF domain_beg = end;
-        int domain_dot = FALSE;         /* '.' seen while scanning the domain */
-        int domain_cut = FALSE;         /* scan stopped at a resolved mark */
-        int underscore_last = FALSE;    /* '_' in the last ... */
-        int underscore_prev = FALSE;    /* ... and second to last domain segment */
-        int paren_open = -1;        /* lazily counted */
-        int paren_close = -1;
-
-        /* cmark-gfm additionally requires the host to start with an
-         * alphanumeric character (is_valid_hostchar()), so "http://-x" or
-         * "http://.x" are not autolinks. (A WWW mark vets its own start.) */
-        if(opener->ch == ':'  &&  (end >= line_end  ||  !ISALNUM(end)))
-            return;
-
-        /* Validate the domain: segments of alphanumeric characters, '_' and
-         * '-', separated with '.'; '_' must not occur in the last two
-         * segments. (The "www." of a WWW autolink is already verified.) */
-        while(end < line_end) {
-            if(md_scan_right_for_resolved_mark(ctx, right_cursor, end, &right_cursor) != NULL) {
-                domain_cut = TRUE;
-                break;
-            }
-
-            if(CH(end) == _T('_')) {
-                underscore_last = TRUE;
-            } else if(CH(end) == _T('.')) {
-                underscore_prev = underscore_last;
-                underscore_last = FALSE;
-                domain_dot = TRUE;
-            } else if(!ISALNUM(end)  &&  CH(end) != _T('-')) {
-                break;
-            }
+        if(end < line_end  &&  URL_MAP[i].optional_end_char != _T('\0')  &&
+                CH(end) == URL_MAP[i].optional_end_char)
             end++;
-        }
-        if(end == domain_beg  ||  underscore_prev  ||  underscore_last)
+
+        if(n_components < URL_MAP[i].min_components  ||  n_open_brackets != 0)
             return;
 
-        /* A domain cut short by an inline construct (an escape, entity, code
-         * span, ...) is too weak a signal unless a full "host.tld" was seen:
-         * otherwise serialized text like "https://foo\_bar.com" would grow a
-         * bogus "https://foo" link out of its own escape. */
-        if(domain_cut  &&  !domain_dot)
-            return;
-
-        /* Consume the path: everything up to the first whitespace, '<', or
-         * already resolved mark. */
-        while(end < line_end  &&  !ISUNICODEWHITESPACE(end)  &&  CH(end) != _T('<')) {
-            if(md_scan_right_for_resolved_mark(ctx, right_cursor, end, &right_cursor) != NULL)
-                break;
-            end++;
-        }
-
-        /* Trim trailing punctuation, a ')' with no matching '(' inside the
-         * link, and anything looking like a trailing HTML entity. */
-        while(end > domain_beg) {
-            if(ISANYOF(end-1, _T("?!.,:*_~'\""))) {
-                end--;
-            } else if(CH(end-1) == _T(')')) {
-                if(paren_open < 0) {
-                    OFF off;
-
-                    paren_open = paren_close = 0;
-                    for(off = beg; off < end; off++) {
-                        if(CH(off) == _T('('))
-                            paren_open++;
-                        else if(CH(off) == _T(')'))
-                            paren_close++;
-                    }
-                }
-                if(paren_close <= paren_open)
-                    break;
-                paren_close--;
-                end--;
-            } else if(CH(end-1) == _T(';')) {
-                OFF entity_beg = end-1;
-
-                while(entity_beg > domain_beg  &&  ISALPHA(entity_beg-1))
-                    entity_beg--;
-                if(entity_beg < end-1  &&  entity_beg > domain_beg  &&  CH(entity_beg-1) == _T('&'))
-                    end = entity_beg-1;
-                else
-                    end--;
-            } else {
-                break;
-            }
-        }
-        if(end == domain_beg)
-            return;
+        if(opener->ch == '@')   /* E-mail autolinks wants only the host. */
+            break;
     }
+
+    /* Verify there's line boundary, whitespace, allowed punctuation or
+     * resolved emphasis mark just after the suspected autolink. */
+    if(end == line_end  ||  ISUNICODEWHITESPACE(end)  ||  ISANYOF(end, _T(")}].!?,;"))) {
+        right_boundary_ok = TRUE;
+    } else {
+        MD_MARK* right_mark;
+
+        right_mark = md_scan_right_for_resolved_mark(ctx, right_cursor, end, &right_cursor);
+        if(right_mark != NULL  &&  (right_mark->flags & MD_MARK_CLOSER))
+            right_boundary_ok = TRUE;
+    }
+    if(!right_boundary_ok)
+        return;
 
     /* Success, we are an autolink. */
     opener->beg = beg;

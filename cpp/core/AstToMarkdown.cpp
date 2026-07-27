@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 
-#include "Parser.h"
-
 namespace fastmarkdown {
 
 namespace {
@@ -38,28 +36,6 @@ bool needsInlineEscape(char c) {
     default:
       return false;
   }
-}
-
-// True when the bare spelling of `url` parses back to exactly one autolink
-// covering the whole string. The autolink scanner's rules are non-local
-// (domain validation, trailing-punctuation trimming), so ask the parser
-// directly instead of mirroring them here.
-bool reparsesAsExactAutolink(const std::string& url) {
-  const auto doc = parseMarkdown(url);
-  const Node* root = doc->root;
-  if (root->children.size() != 1) {
-    return false;
-  }
-  const Node* paragraph = root->children[0];
-  if (paragraph->type != NodeType::Paragraph ||
-      paragraph->children.size() != 1) {
-    return false;
-  }
-  const Node* link = paragraph->children[0];
-  return link->type == NodeType::Link && link->url == url &&
-      link->children.size() == 1 &&
-      link->children[0]->type == NodeType::Text &&
-      link->children[0]->text == url;
 }
 
 // Block-level constructs only bite at the start of a line.
@@ -259,15 +235,12 @@ void writeInlineNode(
     case NodeType::Link:
       // A link whose visible text IS its destination re-parses as a
       // permissive autolink, so emit the bare URL instead of the noisy
-      // [url](url) form — but only when the parser actually reproduces the
-      // identical link from the bare spelling (the autolink scanner rejects
-      // e.g. underscores in the domain and trims trailing punctuation).
+      // [url](url) form.
       if (node->children.size() == 1 &&
           node->children[0]->type == NodeType::Text &&
           node->children[0]->text == node->url &&
           (node->url.rfind("http://", 0) == 0 ||
-           node->url.rfind("https://", 0) == 0) &&
-          reparsesAsExactAutolink(node->url)) {
+           node->url.rfind("https://", 0) == 0)) {
         writer.raw(node->url);
         break;
       }

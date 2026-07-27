@@ -194,74 +194,6 @@ int main() {
       "see https://example.com now",
       R"("type":"link","url":"https://example.com")");
 
-  expectContains(
-      "autolink underscore after slash",
-      "https://youtu.be/_frJhN-oaRs?is=TTbmxq1EWN0nu5-1",
-      R"("type":"link","url":"https://youtu.be/_frJhN-oaRs?is=TTbmxq1EWN0nu5-1")");
-
-  expectContains(
-      "autolink dot before underscore",
-      "https://en.wikipedia.org/wiki/Trial_and_sentencing_of_Robert_H._Richards_IV",
-      R"("url":"https://en.wikipedia.org/wiki/Trial_and_sentencing_of_Robert_H._Richards_IV")");
-
-  expectContains(
-      "autolink trims trailing sentence punctuation",
-      "read https://example.com/docs.",
-      R"("type":"link","url":"https://example.com/docs")");
-
-  expectContains(
-      "autolink keeps balanced parens",
-      "https://en.wikipedia.org/wiki/Bracket_(disambiguation)",
-      R"x("url":"https://en.wikipedia.org/wiki/Bracket_(disambiguation)")x");
-
-  expectContains(
-      "autolink drops unbalanced paren",
-      "(see https://example.com/foo)",
-      R"("type":"link","url":"https://example.com/foo")");
-
-  expectNotContains(
-      "autolink rejects underscore in last domain segments",
-      "https://foo_bar.com/x",
-      R"("type":"link")");
-
-  expectContains(
-      "www autolink",
-      "visit www.example.com/a_b now",
-      R"("type":"link","url":"http://www.example.com/a_b")");
-
-  expectContains(
-      "email autolink",
-      "mail alice.bob-1@example.co.uk, thanks",
-      R"("type":"link","url":"mailto:alice.bob-1@example.co.uk")");
-
-  expectContains(
-      "autolink dotless host",
-      "open http://localhost:3000/path now",
-      R"("type":"link","url":"http://localhost:3000/path")");
-
-  expectNotContains(
-      "autolink rejects punctuation-start host",
-      "see http://-foo.com now",
-      R"("type":"link")");
-
-  expectNotContains(
-      "email host dot-paren stays plain",
-      "x@y.z.(w",
-      R"(mailto)");
-
-  // The URL branch has no right-boundary check: it relies on the scan
-  // stopping at resolved marks, so emphasis delimiters must never be
-  // swallowed into the URL.
-  expectAst(
-      "autolink inside emphasis",
-      "*https://example.com/x*",
-      R"({"type":"document","children":[{"type":"paragraph","children":[{"type":"italic","children":[{"type":"link","url":"https://example.com/x","children":[{"type":"text","text":"https://example.com/x"}]}]}]}]})");
-
-  expectAst(
-      "autolink keeps trailing paren as text",
-      "(see https://example.com/foo)",
-      R"x({"type":"document","children":[{"type":"paragraph","children":[{"type":"text","text":"(see "},{"type":"link","url":"https://example.com/foo","children":[{"type":"text","text":"https://example.com/foo"}]},{"type":"text","text":")"}]}]})x");
-
   expectAst(
       "image",
       "![alt text](https://example.com/x.png)",
@@ -433,22 +365,7 @@ int main() {
     expectString("labeled link keeps brackets",
                  fastmarkdown::astToMarkdown(labeled->root),
                  "[docs](https://example.com)\n");
-    // A text==url link whose URL would NOT re-parse as the identical
-    // autolink (underscore in the domain) must keep the bracket form, or
-    // the link is lost on round-trip.
-    auto underscore = fastmarkdown::parseMarkdown(
-        "[https://foo_bar.com/x](https://foo_bar.com/x)");
-    expectString("unlinkable url keeps brackets",
-                 fastmarkdown::astToMarkdown(underscore->root),
-                 "[https://foo\\_bar.com/x](https://foo_bar.com/x)\n");
   }
-  expectRoundTrip(
-      "rt labeled link with underscore domain",
-      "[https://foo_bar.com/x](https://foo_bar.com/x)");
-  // The serialized form escapes the underscore; the escape must not let a
-  // truncated dotless domain ("https://foo") autolink on re-parse.
-  expectRoundTrip(
-      "rt underscore url as plain text", "see https://foo_bar.com/x now");
   expectRoundTrip("rt image", "![alt text](https://example.com/img.png)");
   expectRoundTrip("rt quote", "> quoted **bold**\n>\n> second paragraph");
   expectRoundTrip("rt nested quote content", "> outer\n>\n> - a\n> - b");
