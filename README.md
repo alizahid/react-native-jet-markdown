@@ -162,6 +162,9 @@ You may notice styles ship natively as one `stylesJson` string instead of a stru
 
 ## Editor
 
+> [!WARNING]
+> The editor is not ready for production use yet. The viewer (`JetMarkdownView`) is stable; `JetMarkdownEditor` still has known issues and its API may change. Track progress in the issue tracker before shipping it.
+
 `JetMarkdownEditor` is a WYSIWYG editor with markdown as the interchange format: no visible syntax while editing, `onChangeMarkdown` fires with serialized markdown on every edit, and `setValue`/`defaultValue`/paste parse markdown into styled content.
 
 ```tsx
