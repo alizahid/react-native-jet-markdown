@@ -31,7 +31,7 @@
   <rect width="1200" height="420" fill="url(#glowIndigo)"/>
 
   <!-- Title block -->
-  <text x="72" y="132" class="sans" font-size="42" font-weight="800" fill="#f8fafc" letter-spacing="-1">react-native-<tspan fill="url(#accent)">fast</tspan>-markdown</text>
+  <text x="72" y="132" class="sans" font-size="42" font-weight="800" fill="#f8fafc" letter-spacing="-1">react-native-<tspan fill="url(#accent)">jet</tspan>-markdown</text>
   <text x="72" y="170" class="sans" font-size="19" fill="#94a3b8">Native markdown viewer &#38; WYSIWYG editor.</text>
   <text x="72" y="196" class="sans" font-size="19" fill="#94a3b8">No WebView. No JS layout. Just native views.</text>
 
@@ -71,7 +71,7 @@
     <text x="676" y="246" class="mono" font-size="13" fill="#94a3b8">- native lists</text>
     <text x="676" y="270" class="mono" font-size="13" fill="#94a3b8">- zero layout shift</text>
     <text x="676" y="294" class="mono" font-size="13" fill="#f472b6">```ts</text>
-    <text x="676" y="318" class="mono" font-size="13" fill="#cbd5e1">render(fast)</text>
+    <text x="676" y="318" class="mono" font-size="13" fill="#cbd5e1">render(jet)</text>
     <text x="676" y="342" class="mono" font-size="13" fill="#f472b6">```</text>
   </g>
 
@@ -96,6 +96,6 @@
     <text x="964" y="260" class="sans" font-size="13.5" fill="#334155">&#8226;&#160;&#160;native lists</text>
     <text x="964" y="282" class="sans" font-size="13.5" fill="#334155">&#8226;&#160;&#160;zero layout shift</text>
     <rect x="962" y="296" width="184" height="40" rx="8" fill="#f1f5f9"/>
-    <text x="974" y="321" class="mono" font-size="12.5" fill="#0f172a">render(<tspan fill="#0d9488">fast</tspan>)</text>
+    <text x="974" y="321" class="mono" font-size="12.5" fill="#0f172a">render(<tspan fill="#0d9488">jet</tspan>)</text>
   </g>
 </svg>
