@@ -331,7 +331,7 @@ export interface MarkdownPasteEvent {
   text?: string;
 }
 
-export interface FastMarkdownEditorRef {
+export interface JetMarkdownEditorRef {
   blur(): void;
   focus(): void;
   /** Resolves the markdown as of the latest edit. */
@@ -374,7 +374,7 @@ export interface FastMarkdownEditorRef {
   toggleUnorderedList(): void;
 }
 
-export interface FastMarkdownEditorProps {
+export interface JetMarkdownEditorProps {
   /** Scale text with the system font size setting. Defaults to true. */
   allowFontScaling?: boolean;
   autoCapitalize?: "none" | "sentences" | "words" | "characters";
@@ -418,7 +418,7 @@ export interface FastMarkdownEditorProps {
   styles?: MarkdownStyles;
 }
 
-export interface FastMarkdownViewProps {
+export interface JetMarkdownViewProps {
   /** Scale text with the system font size setting. Defaults to true. */
   allowFontScaling?: boolean;
   images?: MarkdownImageData[];

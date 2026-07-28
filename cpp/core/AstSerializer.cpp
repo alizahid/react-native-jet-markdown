@@ -1,6 +1,6 @@
 #include "AstSerializer.h"
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 namespace {
 
@@ -37,4 +37,4 @@ std::vector<uint8_t> serializeAst(const Node* root) {
   return out;
 }
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

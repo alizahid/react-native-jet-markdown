@@ -6,7 +6,7 @@
 #include "InlineExtensions.h"
 #include "Preprocess.h"
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 namespace {
 
@@ -467,4 +467,4 @@ std::unique_ptr<MarkdownDocument> parseMarkdown(const std::string& markdown) {
   return doc;
 }
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

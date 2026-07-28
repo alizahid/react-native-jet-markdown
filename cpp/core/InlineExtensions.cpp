@@ -2,7 +2,7 @@
 
 #include <cstring>
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 namespace {
 
@@ -302,4 +302,4 @@ void applyInlineExtensions(MarkdownDocument& doc) {
   }
 }
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

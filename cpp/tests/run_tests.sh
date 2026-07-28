@@ -4,7 +4,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-BUILD_DIR="${TMPDIR:-/tmp}/fastmarkdown-tests"
+BUILD_DIR="${TMPDIR:-/tmp}/jetmarkdown-tests"
 mkdir -p "$BUILD_DIR"
 
 clang -c -O1 -o "$BUILD_DIR/md4c.o" ../md4c/md4c.c

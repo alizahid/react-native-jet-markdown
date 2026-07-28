@@ -1,6 +1,6 @@
 #include "Preprocess.h"
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 namespace {
 
@@ -178,4 +178,4 @@ std::string preprocessMarkdown(const std::string& input) {
   return out;
 }
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

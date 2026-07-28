@@ -14,7 +14,7 @@ const root = path.resolve(__dirname, "..");
 const config = withMetroConfig(getDefaultConfig(__dirname), {
   root,
   dirname: __dirname,
-  conditions: ["react-native-fast-markdown-source"],
+  conditions: ["react-native-jet-markdown-source"],
 });
 
 module.exports = config;

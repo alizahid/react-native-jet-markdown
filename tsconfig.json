@@ -3,7 +3,7 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "customConditions": [
-      "react-native-fast-markdown-source",
+      "react-native-jet-markdown-source",
       "react-native-strict-api"
     ],
     "esModuleInterop": true,
@@ -19,7 +19,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "paths": {
-      "react-native-fast-markdown": ["./src/index"]
+      "react-native-jet-markdown": ["./src/index"]
     },
     "resolveJsonModule": true,
     "rootDir": ".",

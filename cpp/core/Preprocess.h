@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 // Escapes a line-leading ">" when it opens a Reddit spoiler (">!") so md4c
 // does not consume it as a blockquote marker. Runs before md4c; the inline
@@ -11,4 +11,4 @@ namespace fastmarkdown {
 // code). All other spoiler handling happens post-parse.
 std::string preprocessMarkdown(const std::string& input);
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

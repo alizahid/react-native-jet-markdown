@@ -2,7 +2,7 @@
 
 #include "Ast.h"
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 // Post-parse scan of inline runs adding the syntax md4c does not know:
 //   >!spoiler!<  and  ||spoiler||          -> Spoiler
@@ -14,4 +14,4 @@ namespace fastmarkdown {
 // left untouched.
 void applyInlineExtensions(MarkdownDocument& doc);
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

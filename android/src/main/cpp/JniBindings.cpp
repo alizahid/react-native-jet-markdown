@@ -1,4 +1,4 @@
-// JNI surface for com.fastmarkdown.FastMarkdownNative. This TU is linked
+// JNI surface for com.jetmarkdown.JetMarkdownNative. This TU is linked
 // into the app's libappmodules.so (which owns JNI_OnLoad), so natives are
 // exported by name instead of registered from an OnLoad hook.
 //
@@ -14,7 +14,7 @@
 #include "core/AstSerializer.h"
 #include "core/EditorRuns.h"
 #include "core/Parser.h"
-#include "react/FastMarkdownMeasurer.h"
+#include "react/JetMarkdownMeasurer.h"
 
 namespace {
 
@@ -80,15 +80,15 @@ JNIEnv* currentEnv() {
 } // namespace
 
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_com_fastmarkdown_FastMarkdownNative_parse(JNIEnv* env, jclass, jbyteArray markdown) {
+Java_com_jetmarkdown_JetMarkdownNative_parse(JNIEnv* env, jclass, jbyteArray markdown) {
   const std::string input = toStdString(env, markdown);
-  const auto document = fastmarkdown::parseMarkdown(input);
-  const std::vector<uint8_t> bytes = fastmarkdown::serializeAst(document->root);
+  const auto document = jetmarkdown::parseMarkdown(input);
+  const std::vector<uint8_t> bytes = jetmarkdown::serializeAst(document->root);
   return toByteArray(env, bytes.data(), bytes.size());
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_com_fastmarkdown_FastMarkdownNative_markdownFromEditorContent(
+Java_com_jetmarkdown_JetMarkdownNative_markdownFromEditorContent(
     JNIEnv* env,
     jclass,
     jbyteArray text,
@@ -96,7 +96,7 @@ Java_com_fastmarkdown_FastMarkdownNative_markdownFromEditorContent(
     jintArray lineBlocks,
     jintArray linkRanges,
     jbyteArray linkUrls) {
-  std::vector<fastmarkdown::StyledRun> styledRuns;
+  std::vector<jetmarkdown::StyledRun> styledRuns;
   if (runs != nullptr) {
     const jsize length = env->GetArrayLength(runs);
     std::vector<jint> values(static_cast<size_t>(length));
@@ -110,7 +110,7 @@ Java_com_fastmarkdown_FastMarkdownNative_markdownFromEditorContent(
            static_cast<uint32_t>(values[i + 2])});
     }
   }
-  std::vector<fastmarkdown::EditorLine> lines;
+  std::vector<jetmarkdown::EditorLine> lines;
   if (lineBlocks != nullptr) {
     const jsize length = env->GetArrayLength(lineBlocks);
     std::vector<jint> values(static_cast<size_t>(length));
@@ -119,12 +119,12 @@ Java_com_fastmarkdown_FastMarkdownNative_markdownFromEditorContent(
     }
     for (jsize i = 0; i + 1 < length; i += 2) {
       lines.push_back(
-          {static_cast<fastmarkdown::EditorBlockType>(values[i]),
+          {static_cast<jetmarkdown::EditorBlockType>(values[i]),
            static_cast<uint8_t>(values[i + 1])});
     }
   }
   // Link URLs cross as one newline-joined blob (URLs cannot contain '\n').
-  std::vector<fastmarkdown::LinkRun> links;
+  std::vector<jetmarkdown::LinkRun> links;
   if (linkRanges != nullptr) {
     const jsize length = env->GetArrayLength(linkRanges);
     std::vector<jint> values(static_cast<size_t>(length));
@@ -143,19 +143,19 @@ Java_com_fastmarkdown_FastMarkdownNative_markdownFromEditorContent(
       urlStart = urlEnd == std::string::npos ? urls.size() : urlEnd + 1;
     }
   }
-  const std::string result = fastmarkdown::markdownFromEditor(
+  const std::string result = jetmarkdown::markdownFromEditor(
       toStdString(env, text), styledRuns, lines, links);
   return toByteArray(
       env, reinterpret_cast<const uint8_t*>(result.data()), result.size());
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_com_fastmarkdown_FastMarkdownNative_editorFromMarkdownContent(
+Java_com_jetmarkdown_JetMarkdownNative_editorFromMarkdownContent(
     JNIEnv* env,
     jclass,
     jbyteArray markdown) {
-  const fastmarkdown::EditorDocument document =
-      fastmarkdown::editorFromMarkdown(toStdString(env, markdown));
+  const jetmarkdown::EditorDocument document =
+      jetmarkdown::editorFromMarkdown(toStdString(env, markdown));
   // [int32 runCount][runCount x (start, end, flags)][int32 lineCount]
   // [lineCount x (type, level)][utf8 text], little-endian.
   std::vector<uint8_t> bytes;
@@ -169,23 +169,23 @@ Java_com_fastmarkdown_FastMarkdownNative_editorFromMarkdownContent(
     bytes.push_back(static_cast<uint8_t>((value >> 24) & 0xFF));
   };
   push32(static_cast<uint32_t>(document.runs.size()));
-  for (const fastmarkdown::StyledRun& run : document.runs) {
+  for (const jetmarkdown::StyledRun& run : document.runs) {
     push32(run.start);
     push32(run.end);
     push32(run.flags);
   }
   push32(static_cast<uint32_t>(document.lines.size()));
-  for (const fastmarkdown::EditorLine& line : document.lines) {
+  for (const jetmarkdown::EditorLine& line : document.lines) {
     push32(static_cast<uint32_t>(line.type));
     push32(line.level);
   }
   push32(static_cast<uint32_t>(document.links.size()));
-  for (const fastmarkdown::LinkRun& link : document.links) {
+  for (const jetmarkdown::LinkRun& link : document.links) {
     push32(link.start);
     push32(link.end);
     push32(static_cast<uint32_t>(link.url.size()));
   }
-  for (const fastmarkdown::LinkRun& link : document.links) {
+  for (const jetmarkdown::LinkRun& link : document.links) {
     bytes.insert(bytes.end(), link.url.begin(), link.url.end());
   }
   bytes.insert(bytes.end(), document.text.begin(), document.text.end());
@@ -193,7 +193,7 @@ Java_com_fastmarkdown_FastMarkdownNative_editorFromMarkdownContent(
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_com_fastmarkdown_FastMarkdownNative_installMeasurer(
+Java_com_jetmarkdown_JetMarkdownNative_installMeasurer(
     JNIEnv* env,
     jclass,
     jobject measurer) {
@@ -207,7 +207,7 @@ Java_com_fastmarkdown_FastMarkdownNative_installMeasurer(
   g_measureMethod = env->GetMethodID(measurerClass, "measure", "([B[B[BFF)F");
   env->DeleteLocalRef(measurerClass);
 
-  fastmarkdown::FastMarkdownMeasurer::shared().install(
+  jetmarkdown::JetMarkdownMeasurer::shared().install(
       [](const std::string& markdown,
          const std::string& stylesJson,
          const std::string& imagesJson,

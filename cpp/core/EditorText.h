@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 // E1 editor bridge: the editor holds plain text until inline marks (E2) and
 // block formatting (E3) attach structure.
@@ -15,4 +15,4 @@ std::string markdownFromPlainText(const std::string& text);
 // blocks become lines; inline formatting reduces to its text content.
 std::string plainTextFromMarkdown(const std::string& markdown);
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

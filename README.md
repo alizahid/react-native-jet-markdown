@@ -1,5 +1,5 @@
 <p align="center">
-  <img alt="react-native-fast-markdown — native markdown viewer and WYSIWYG editor for React Native" src="https://raw.githubusercontent.com/alizahid/react-native-fast-markdown/main/docs/hero.svg" width="900">
+  <img alt="react-native-jet-markdown — native markdown viewer and WYSIWYG editor for React Native" src="https://raw.githubusercontent.com/alizahid/react-native-jet-markdown/main/docs/hero.svg" width="900">
 </p>
 
 <p align="center">
@@ -7,8 +7,8 @@
 </p>
 
 <p align="center">
-  <a href="https://www.npmjs.com/package/react-native-fast-markdown"><img src="https://img.shields.io/npm/v/react-native-fast-markdown?color=A02F6F&label=npm" alt="npm"></a>
-  <a href="https://github.com/alizahid/react-native-fast-markdown/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/react-native-fast-markdown?color=668C0B" alt="license"></a>
+  <a href="https://www.npmjs.com/package/react-native-jet-markdown"><img src="https://img.shields.io/npm/v/react-native-jet-markdown?color=A02F6F&label=npm" alt="npm"></a>
+  <a href="https://github.com/alizahid/react-native-jet-markdown/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/react-native-jet-markdown?color=668C0B" alt="license"></a>
   <img src="https://img.shields.io/badge/platform-iOS%20%7C%20Android-5E409D" alt="platform">
   <img src="https://img.shields.io/badge/architecture-Fabric-205EA6" alt="architecture">
 </p>
@@ -27,7 +27,7 @@ Headings, paragraphs, images, GFM tables (horizontal scroll with intelligently s
 ## Installation
 
 ```sh
-npm install react-native-fast-markdown
+npm install react-native-jet-markdown
 cd ios && pod install
 ```
 
@@ -37,10 +37,10 @@ Requires React Native 0.86+ with the New Architecture (Fabric).
 
 ```tsx
 import {
-  FastMarkdownView,
+  JetMarkdownView,
   mergeStyles,
   type MarkdownStyles,
-} from 'react-native-fast-markdown';
+} from 'react-native-jet-markdown';
 
 // Default look + overrides. Or pass `defaultStyles` as-is, or your own
 // object from scratch — with no `styles` prop the viewer renders fully
@@ -58,7 +58,7 @@ const styles: MarkdownStyles = mergeStyles({
   spoiler: { backgroundColor: '#374151', borderRadius: 4 },
 });
 
-<FastMarkdownView
+<JetMarkdownView
   markdown={'Hello **world**, ping [@ali](users://ali)!'}
   styles={styles}
   style={{ padding: 16, gap: 12 }}
@@ -137,7 +137,7 @@ Rendering hundreds of viewers in FlatList / FlashList / LegendList is a first-cl
 ```tsx
 const renderItem = ({ item }) => (
   <Pressable onPress={() => openPost(item)}>
-    <FastMarkdownView markdown={item.body} styles={styles} onLinkPress={openLink} />
+    <JetMarkdownView markdown={item.body} styles={styles} onLinkPress={openLink} />
   </Pressable>
 );
 ```
@@ -162,17 +162,17 @@ You may notice styles ship natively as one `stylesJson` string instead of a stru
 
 ## Editor
 
-`FastMarkdownEditor` is a WYSIWYG editor with markdown as the interchange format: no visible syntax while editing, `onChangeMarkdown` fires with serialized markdown on every edit, and `setValue`/`defaultValue`/paste parse markdown into styled content.
+`JetMarkdownEditor` is a WYSIWYG editor with markdown as the interchange format: no visible syntax while editing, `onChangeMarkdown` fires with serialized markdown on every edit, and `setValue`/`defaultValue`/paste parse markdown into styled content.
 
 ```tsx
-import { FastMarkdownEditor, useFastMarkdownEditor } from "react-native-fast-markdown";
+import { JetMarkdownEditor, useJetMarkdownEditor } from "react-native-jet-markdown";
 
 function Compose() {
-  const editor = useFastMarkdownEditor();
+  const editor = useJetMarkdownEditor();
 
   return (
     <>
-      <FastMarkdownEditor
+      <JetMarkdownEditor
         mentionTriggers={["@"]}
         onChangeMarkdown={(markdown) => save(markdown)}
         onMentionChange={({ query }) => search(query)}
@@ -219,13 +219,13 @@ Paste never inserts directly. `onPaste` receives `{ text?, images?, preventDefau
 
 ## Sponsors
 
-Development of react-native-fast-markdown is supported by:
+Development of react-native-jet-markdown is supported by:
 
 <table>
   <tr>
     <td align="center" width="200">
       <a href="https://duet.so">
-        <img alt="Duet" src="https://github.com/alizahid/react-native-fast-markdown/blob/main/.github/duet.png?raw=true" width="96"><br>
+        <img alt="Duet" src="https://github.com/alizahid/react-native-jet-markdown/blob/main/.github/duet.png?raw=true" width="96"><br>
         <b>Duet</b>
       </a>
       <br>
@@ -233,7 +233,7 @@ Development of react-native-fast-markdown is supported by:
     </td>
     <td align="center" width="200">
       <a href="https://acorn.blue">
-        <img alt="Acorn" src="https://github.com/alizahid/react-native-fast-markdown/blob/main/.github/acorn.png?raw=true" width="96"><br>
+        <img alt="Acorn" src="https://github.com/alizahid/react-native-jet-markdown/blob/main/.github/acorn.png?raw=true" width="96"><br>
         <b>Acorn</b>
       </a>
       <br>

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 enum class NodeType : uint8_t {
   Document = 0,
@@ -82,4 +82,4 @@ struct MarkdownDocument {
   Node* root = nullptr;
 };
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

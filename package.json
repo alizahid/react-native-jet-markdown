@@ -1,5 +1,5 @@
 {
-  "name": "react-native-fast-markdown",
+  "name": "react-native-jet-markdown",
   "version": "0.2.0-beta.6",
   "description": "High-performance native Markdown renderer and editor for React Native",
   "keywords": [
@@ -7,19 +7,19 @@
     "ios",
     "android"
   ],
-  "homepage": "https://github.com/alizahid/react-native-fast-markdown#readme",
+  "homepage": "https://github.com/alizahid/react-native-jet-markdown#readme",
   "bugs": {
-    "url": "https://github.com/alizahid/react-native-fast-markdown/issues"
+    "url": "https://github.com/alizahid/react-native-jet-markdown/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/alizahid/react-native-fast-markdown.git"
+    "url": "git+https://github.com/alizahid/react-native-jet-markdown.git"
   },
   "license": "MIT",
   "author": "Ali Zahid <ali.zahid@live.com> (https://github.com/alizahid)",
   "exports": {
     ".": {
-      "react-native-fast-markdown-source": "./src/index.tsx",
+      "react-native-jet-markdown-source": "./src/index.tsx",
       "types": "./lib/typescript/src/index.d.ts",
       "default": "./lib/module/index.js"
     },
@@ -85,19 +85,19 @@
     "registry": "https://registry.npmjs.org/"
   },
   "codegenConfig": {
-    "name": "FastMarkdownViewSpec",
+    "name": "JetMarkdownViewSpec",
     "type": "components",
     "jsSrcsDir": "src",
     "android": {
-      "javaPackageName": "com.fastmarkdown"
+      "javaPackageName": "com.jetmarkdown"
     },
     "ios": {
       "components": {
-        "FastMarkdownEditor": {
-          "className": "FastMarkdownEditor"
+        "JetMarkdownEditor": {
+          "className": "JetMarkdownEditor"
         },
-        "FastMarkdownView": {
-          "className": "FastMarkdownView"
+        "JetMarkdownView": {
+          "className": "JetMarkdownView"
         }
       }
     }

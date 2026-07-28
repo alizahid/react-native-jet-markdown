@@ -2,7 +2,7 @@
 
 #include <cstdio>
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 namespace {
 
@@ -126,4 +126,4 @@ std::string astToJson(const Node* node) {
   return out;
 }
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

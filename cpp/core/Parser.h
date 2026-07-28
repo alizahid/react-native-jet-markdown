@@ -5,7 +5,7 @@
 
 #include "Ast.h"
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 // Parses markdown into an AST: preprocess (spoiler escaping) -> md4c ->
 // inline extension scan (spoilers, strikethrough, superscript, subscript).
@@ -13,4 +13,4 @@ namespace fastmarkdown {
 // paragraph with the raw input as plain text.
 std::unique_ptr<MarkdownDocument> parseMarkdown(const std::string& markdown);
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

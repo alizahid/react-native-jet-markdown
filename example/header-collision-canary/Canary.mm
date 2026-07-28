@@ -4,7 +4,7 @@
 #include "md4c.h"
 
 #ifndef CANARY_MD4C_FORK
-#error "md4c.h resolved to a foreign copy - FastMarkdown headers leaked into the Pods project"
+#error "md4c.h resolved to a foreign copy - JetMarkdown headers leaked into the Pods project"
 #endif
 
 static_assert(

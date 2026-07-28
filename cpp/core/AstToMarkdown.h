@@ -4,7 +4,7 @@
 
 #include "Ast.h"
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 // Serializes an AST back to markdown text such that re-parsing the output
 // yields an identical AST (the round-trip law, covered by golden tests).
@@ -13,4 +13,4 @@ namespace fastmarkdown {
 // superscripts normalize to ^word^).
 std::string astToMarkdown(const Node* root);
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

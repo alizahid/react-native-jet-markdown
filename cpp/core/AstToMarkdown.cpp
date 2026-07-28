@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 namespace {
 
@@ -546,4 +546,4 @@ std::string astToMarkdown(const Node* root) {
   return out;
 }
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

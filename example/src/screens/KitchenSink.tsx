@@ -1,12 +1,12 @@
 import { Alert, ScrollView, StyleSheet } from "react-native";
 import {
-  FastMarkdownView,
+  JetMarkdownView,
   type MarkdownContainerStyle,
   type MarkdownStyles,
   mergeStyles,
-} from "react-native-fast-markdown";
+} from "react-native-jet-markdown";
 
-const MARKDOWN = `# Fast Markdown
+const MARKDOWN = `# Jet Markdown
 
 Paragraph with **bold**, _italic_, ~~strikethrough~~, and **bold _italic_ nested** runs.
 
@@ -79,7 +79,7 @@ Wide (scrolls horizontally):
 
 | ID | Package name | Version | Downloads | License | Maintainer | Last publish | Notes |
 |----|--------------|---------|-----------|---------|------------|--------------|-------|
-| 1 | [react-native-fast-markdown](https://alizahid.dev) | 0.1.0 | 120,394 | MIT | *@ali* | 2 days ago | A really long descriptive note that pads this cell |
+| 1 | [react-native-jet-markdown](https://alizahid.dev) | 0.1.0 | 120,394 | MIT | *@ali* | 2 days ago | A really long descriptive note that pads this cell |
 | 2 | react-native-enriched | 1.0.0 | 88,120 | MIT | **swmansion** | 1 week ago | Another very descriptive note about the package |`;
 
 const styles: MarkdownStyles = mergeStyles({
@@ -134,7 +134,7 @@ export function KitchenSink() {
       contentInsetAdjustmentBehavior="automatic"
       style={sheet.container}
     >
-      <FastMarkdownView
+      <JetMarkdownView
         images={images}
         markdown={MARKDOWN}
         onImagePress={({ url, x, y, width, height }) =>

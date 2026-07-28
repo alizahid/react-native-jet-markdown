@@ -9,12 +9,12 @@ import {
   Text,
 } from "react-native";
 import {
-  FastMarkdownEditor,
+  JetMarkdownEditor,
   type MarkdownContainerStyle,
   type MarkdownEditorState,
   mergeStyles,
-  useFastMarkdownEditor,
-} from "react-native-fast-markdown";
+  useJetMarkdownEditor,
+} from "react-native-jet-markdown";
 
 const styles = mergeStyles();
 
@@ -27,7 +27,7 @@ const editorStyle: MarkdownContainerStyle = {
 };
 
 export function Editor() {
-  const editor = useFastMarkdownEditor();
+  const editor = useJetMarkdownEditor();
   const [status, setStatus] = useState("idle");
   const [selection, setSelection] = useState("0:0");
   const [lastMarkdown, setLastMarkdown] = useState("");
@@ -44,7 +44,7 @@ export function Editor() {
           {status} · sel {selection}
           {mention ? ` · ${mention}` : ""}
         </Text>
-        <FastMarkdownEditor
+        <JetMarkdownEditor
           mentionTriggers={["@", "#"]}
           onBlur={() => setStatus("blurred")}
           onChangeMarkdown={(markdown) => setLastMarkdown(markdown)}

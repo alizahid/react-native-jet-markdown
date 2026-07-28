@@ -4,10 +4,10 @@
 #include <string>
 #include <vector>
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 // Inline mark bits carried by editor styled runs. Mirrored by the native
-// editors (FMDEditorMarks attribute on iOS, EditorMarkSpan on Android).
+// editors (JMDEditorMarks attribute on iOS, EditorMarkSpan on Android).
 enum EditorMark : uint32_t {
   MarkBold = 1u << 0,
   MarkItalic = 1u << 1,
@@ -18,7 +18,7 @@ enum EditorMark : uint32_t {
   MarkSubscript = 1u << 6,
 };
 
-// Per-line block types. Mirrored by the native editors (FMDEditorBlock
+// Per-line block types. Mirrored by the native editors (JMDEditorBlock
 // attribute on iOS, EditorBlockSpan on Android).
 enum class EditorBlockType : uint8_t {
   Paragraph = 0,
@@ -91,4 +91,4 @@ std::string markdownFromStyledText(
     const std::vector<StyledRun>& runs);
 StyledText styledTextFromMarkdown(const std::string& markdown);
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

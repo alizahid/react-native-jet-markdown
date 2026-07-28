@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FastMarkdown Example",
-    "slug": "react-native-fast-markdown-example",
+    "name": "JetMarkdown Example",
+    "slug": "react-native-jet-markdown-example",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "fastmarkdown.example"
+      "bundleIdentifier": "jetmarkdown.example"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +22,7 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "package": "fastmarkdown.example"
+      "package": "jetmarkdown.example"
     },
     "web": {
       "favicon": "./assets/favicon.png"

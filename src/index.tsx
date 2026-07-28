@@ -1,14 +1,14 @@
 /** biome-ignore-all lint/performance/noBarrelFile: go away */
 
 export { defaultStyles, mergeStyles } from "./defaultStyles";
-export { FastMarkdownEditor } from "./FastMarkdownEditor";
-export { FastMarkdownView } from "./FastMarkdownView";
+export { JetMarkdownEditor } from "./JetMarkdownEditor";
+export { JetMarkdownView } from "./JetMarkdownView";
 export type {
-  FastMarkdownEditorProps,
-  FastMarkdownEditorRef,
-  FastMarkdownViewProps,
   FontVariant,
   FontWeight,
+  JetMarkdownEditorProps,
+  JetMarkdownEditorRef,
+  JetMarkdownViewProps,
   MarkdownContainerStyle,
   MarkdownDividerStyle,
   MarkdownEditorState,
@@ -31,4 +31,4 @@ export type {
   MarkdownTextStyle,
   MarkdownUrlEvent,
 } from "./types";
-export { useFastMarkdownEditor } from "./useFastMarkdownEditor";
+export { useJetMarkdownEditor } from "./useJetMarkdownEditor";

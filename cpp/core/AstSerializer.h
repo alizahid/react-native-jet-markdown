@@ -5,7 +5,7 @@
 
 #include "Ast.h"
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 // Flat little-endian pre-order encoding, decoded by AstDecoder.kt on Android.
 // Per node:
@@ -18,4 +18,4 @@ namespace fastmarkdown {
 //   u32 childCount, then children recursively
 std::vector<uint8_t> serializeAst(const Node* root);
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

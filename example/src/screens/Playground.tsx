@@ -2,11 +2,11 @@ import { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import {
   defaultStyles,
-  FastMarkdownView,
+  JetMarkdownView,
   type MarkdownContainerStyle,
   type MarkdownStyles,
   mergeStyles,
-} from "react-native-fast-markdown";
+} from "react-native-jet-markdown";
 
 const MARKDOWN = `# Theme playground
 
@@ -122,7 +122,7 @@ export function Playground() {
         </Pressable>
       </View>
       <ScrollView>
-        <FastMarkdownView
+        <JetMarkdownView
           markdown={MARKDOWN}
           style={[
             { padding: 16, gap: GAPS[gapIndex] },

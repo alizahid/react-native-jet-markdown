@@ -7,7 +7,7 @@
 #include "AstToMarkdown.h"
 #include "Parser.h"
 
-namespace fastmarkdown {
+namespace jetmarkdown {
 
 namespace {
 
@@ -637,4 +637,4 @@ StyledText styledTextFromMarkdown(const std::string& markdown) {
   return {std::move(document.text), std::move(document.runs)};
 }
 
-} // namespace fastmarkdown
+} // namespace jetmarkdown

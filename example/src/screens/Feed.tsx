@@ -8,15 +8,15 @@ import {
   View,
 } from "react-native";
 import {
-  FastMarkdownView,
-  type MarkdownContainerStyle,
-  type MarkdownStyles,
-  mergeStyles,
-} from "react-native-fast-markdown";
-import {
   Pressable as GHPressable,
   ScrollView as GHScrollView,
 } from "react-native-gesture-handler";
+import {
+  JetMarkdownView,
+  type MarkdownContainerStyle,
+  type MarkdownStyles,
+  mergeStyles,
+} from "react-native-jet-markdown";
 
 const markdownStyle: MarkdownContainerStyle = {
   fontFamily: "Satoshi",
@@ -56,11 +56,11 @@ const SNIPPETS = [
   "Does anyone know why `useMemo` re-runs here? See [the docs](https://reactjs.org) or ask in [#help](channels://help).",
   '```ts\nconst content = useMemo(\n  () => parseMarkdown(post.body, { flavor: "gfm" }),\n  [post.body]\n);\n```\n\nA code block inside a recycled cell.',
   "> The best way to predict the future is to invent it.\n>\n> A second quoted paragraph for good measure.\n\nClassic quote via [#quotes](channels://quotes).",
-  "Benchmarks so far:\n\n| Library | Parse | Layout |\n|---------|-------|--------|\n| fast-markdown | 0.4ms | 1.1ms |\n| webview-based | 12ms | 40ms |",
+  "Benchmarks so far:\n\n| Library | Parse | Layout |\n|---------|-------|--------|\n| jet-markdown | 0.4ms | 1.1ms |\n| webview-based | 12ms | 40ms |",
   "Long paragraph that wraps across multiple lines to give the recycler some variety in cell heights when scrolling quickly through the feed. It keeps going for a while so the measurement cache earns its keep.",
   "1. first\n2. second\n3. third\n\nOrdered lists inside a recycled cell.",
   "Mixed **bold**, _italic_, ~~strike~~, and a spoiler >!hidden spoiler spoiler in a card!< for testing.",
-  "### Wide table\n\n| ID | Package | Version | Downloads | License | Maintainer |\n|----|---------|---------|-----------|---------|------------|\n| 1 | react-native-fast-markdown | 0.1.0 | 120,394 | MIT | @ali |\n| 2 | react-native-enriched | 1.0.0 | 88,120 | MIT | swmansion |",
+  "### Wide table\n\n| ID | Package | Version | Downloads | License | Maintainer |\n|----|---------|---------|-----------|---------|------------|\n| 1 | react-native-jet-markdown | 0.1.0 | 120,394 | MIT | @ali |\n| 2 | react-native-enriched | 1.0.0 | 88,120 | MIT | swmansion |",
   "> Block quote with a nested list:\n>\n> - quoted alpha\n> - quoted beta\n\nAnd a trailing paragraph.",
 ];
 
@@ -90,7 +90,7 @@ export function Feed() {
           onPress={() => setLastPress(`card #${Number(item.id) + 1}`)}
           style={({ pressed }) => [sheet.card, pressed && sheet.cardPressed]}
         >
-          <FastMarkdownView
+          <JetMarkdownView
             markdown={item.markdown}
             onLinkPress={({ url }) => setLastPress(`link ${url}`)}
             style={markdownStyle}

@@ -20,8 +20,8 @@ int g_total = 0;
 
 void expectAst(const char* name, const std::string& markdown, const std::string& expected) {
   g_total++;
-  auto doc = fastmarkdown::parseMarkdown(markdown);
-  const std::string actual = fastmarkdown::astToJson(doc->root);
+  auto doc = jetmarkdown::parseMarkdown(markdown);
+  const std::string actual = jetmarkdown::astToJson(doc->root);
   if (actual != expected) {
     g_failures++;
     std::printf("FAIL %s\n  input:    %s\n  expected: %s\n  actual:   %s\n",
@@ -31,8 +31,8 @@ void expectAst(const char* name, const std::string& markdown, const std::string&
 
 void expectContains(const char* name, const std::string& markdown, const std::string& fragment) {
   g_total++;
-  auto doc = fastmarkdown::parseMarkdown(markdown);
-  const std::string actual = fastmarkdown::astToJson(doc->root);
+  auto doc = jetmarkdown::parseMarkdown(markdown);
+  const std::string actual = jetmarkdown::astToJson(doc->root);
   if (actual.find(fragment) == std::string::npos) {
     g_failures++;
     std::printf("FAIL %s\n  input:    %s\n  missing:  %s\n  actual:   %s\n",
@@ -42,8 +42,8 @@ void expectContains(const char* name, const std::string& markdown, const std::st
 
 void expectNotContains(const char* name, const std::string& markdown, const std::string& fragment) {
   g_total++;
-  auto doc = fastmarkdown::parseMarkdown(markdown);
-  const std::string actual = fastmarkdown::astToJson(doc->root);
+  auto doc = jetmarkdown::parseMarkdown(markdown);
+  const std::string actual = jetmarkdown::astToJson(doc->root);
   if (actual.find(fragment) != std::string::npos) {
     g_failures++;
     std::printf("FAIL %s\n  input:    %s\n  found unexpected: %s\n  actual:   %s\n",
@@ -55,11 +55,11 @@ void expectNotContains(const char* name, const std::string& markdown, const std:
 // original AST exactly, even when the spelling normalizes.
 void expectRoundTrip(const char* name, const std::string& markdown) {
   g_total++;
-  auto doc = fastmarkdown::parseMarkdown(markdown);
-  const std::string original = fastmarkdown::astToJson(doc->root);
-  const std::string serialized = fastmarkdown::astToMarkdown(doc->root);
-  auto reparsed = fastmarkdown::parseMarkdown(serialized);
-  const std::string actual = fastmarkdown::astToJson(reparsed->root);
+  auto doc = jetmarkdown::parseMarkdown(markdown);
+  const std::string original = jetmarkdown::astToJson(doc->root);
+  const std::string serialized = jetmarkdown::astToMarkdown(doc->root);
+  auto reparsed = jetmarkdown::parseMarkdown(serialized);
+  const std::string actual = jetmarkdown::astToJson(reparsed->root);
   if (actual != original) {
     g_failures++;
     std::printf(
@@ -80,9 +80,9 @@ void expectString(
 
 // Canonical form: one maximal run per mark bit, so equivalent mark coverage
 // compares equal regardless of how runs were sliced or combined.
-std::string dumpStyled(const fastmarkdown::StyledText& styled) {
+std::string dumpStyled(const jetmarkdown::StyledText& styled) {
   std::string out = "\"" + styled.text + "\"";
-  for (uint32_t bit = 1; bit <= fastmarkdown::MarkSubscript; bit <<= 1) {
+  for (uint32_t bit = 1; bit <= jetmarkdown::MarkSubscript; bit <<= 1) {
     std::vector<std::pair<uint32_t, uint32_t>> intervals;
     for (const auto& run : styled.runs) {
       if ((run.flags & bit) == 0 || run.start >= run.end) {
@@ -103,7 +103,7 @@ std::string dumpStyled(const fastmarkdown::StyledText& styled) {
   return out;
 }
 
-std::string dumpEditor(const fastmarkdown::EditorDocument& document) {
+std::string dumpEditor(const jetmarkdown::EditorDocument& document) {
   std::string out = dumpStyled({document.text, document.runs});
   out += " |";
   for (const auto& line : document.lines) {
@@ -124,11 +124,11 @@ std::string dumpEditor(const fastmarkdown::EditorDocument& document) {
 void expectEditorRoundTrip(
     const char* name,
     const std::string& text,
-    const std::vector<fastmarkdown::StyledRun>& runs,
-    const std::vector<fastmarkdown::EditorLine>& lines) {
+    const std::vector<jetmarkdown::StyledRun>& runs,
+    const std::vector<jetmarkdown::EditorLine>& lines) {
   g_total++;
-  const std::string markdown = fastmarkdown::markdownFromEditor(text, runs, lines);
-  const auto extracted = fastmarkdown::editorFromMarkdown(markdown);
+  const std::string markdown = jetmarkdown::markdownFromEditor(text, runs, lines);
+  const auto extracted = jetmarkdown::editorFromMarkdown(markdown);
   const std::string expected = dumpEditor({text, runs, lines, {}});
   const std::string actual = dumpEditor(extracted);
   if (actual != expected) {
@@ -144,10 +144,10 @@ void expectEditorRoundTrip(
 void expectStyledRoundTrip(
     const char* name,
     const std::string& text,
-    const std::vector<fastmarkdown::StyledRun>& runs) {
+    const std::vector<jetmarkdown::StyledRun>& runs) {
   g_total++;
-  const std::string markdown = fastmarkdown::markdownFromStyledText(text, runs);
-  const auto extracted = fastmarkdown::styledTextFromMarkdown(markdown);
+  const std::string markdown = jetmarkdown::markdownFromStyledText(text, runs);
+  const auto extracted = jetmarkdown::styledTextFromMarkdown(markdown);
   const std::string expected = dumpStyled({text, runs});
   const std::string actual = dumpStyled(extracted);
   if (actual != expected) {
@@ -357,13 +357,13 @@ int main() {
   {
     // A link whose label equals its URL serializes as the bare URL (the
     // permissive-autolink form), not the noisy [url](url) form.
-    auto doc = fastmarkdown::parseMarkdown("visit https://example.com today");
+    auto doc = jetmarkdown::parseMarkdown("visit https://example.com today");
     expectString("autolink serializes bare",
-                 fastmarkdown::astToMarkdown(doc->root),
+                 jetmarkdown::astToMarkdown(doc->root),
                  "visit https://example.com today\n");
-    auto labeled = fastmarkdown::parseMarkdown("[docs](https://example.com)");
+    auto labeled = jetmarkdown::parseMarkdown("[docs](https://example.com)");
     expectString("labeled link keeps brackets",
-                 fastmarkdown::astToMarkdown(labeled->root),
+                 jetmarkdown::astToMarkdown(labeled->root),
                  "[docs](https://example.com)\n");
   }
   expectRoundTrip("rt image", "![alt text](https://example.com/img.png)");
@@ -405,13 +405,13 @@ int main() {
   // --- Emphasis adjacency: stars must survive intraword adjacency and the
   // 4+ star-run fallback must use flanking-legal underscores.
   expectStyledRoundTrip("adjacent bold italic intraword", "XyZ",
-      {{0, 1, fastmarkdown::MarkBold}, {1, 2, fastmarkdown::MarkItalic}});
+      {{0, 1, jetmarkdown::MarkBold}, {1, 2, jetmarkdown::MarkItalic}});
   expectStyledRoundTrip("adjacent italic bold intraword", "XyZ",
-      {{0, 1, fastmarkdown::MarkItalic}, {1, 2, fastmarkdown::MarkBold}});
+      {{0, 1, jetmarkdown::MarkItalic}, {1, 2, jetmarkdown::MarkBold}});
 
   // --- Superscript content that fits neither caret form.
   expectStyledRoundTrip("sup paren without space", "ab",
-      {{0, 2, fastmarkdown::MarkSuperscript}});
+      {{0, 2, jetmarkdown::MarkSuperscript}});
 
   // --- Hostile nesting must parse without blowing the stack (depth cap).
   {
@@ -420,14 +420,14 @@ int main() {
       hostile += '>';
     }
     hostile += " x";
-    auto doc = fastmarkdown::parseMarkdown(hostile);
+    auto doc = jetmarkdown::parseMarkdown(hostile);
     g_total++;
     if (doc->root == nullptr) {
       g_failures++;
       std::printf("FAIL deep nesting parse\n");
     } else {
       // Serialization must also complete (bounded recursion).
-      const std::string out = fastmarkdown::astToMarkdown(doc->root);
+      const std::string out = jetmarkdown::astToMarkdown(doc->root);
       if (out.empty()) {
         g_failures++;
         std::printf("FAIL deep nesting serialize\n");
@@ -451,51 +451,51 @@ int main() {
   // --- Editor plain-text bridge (E1) ---
   expectString(
       "editor markdown from text",
-      fastmarkdown::markdownFromPlainText("hello\nworld"),
+      jetmarkdown::markdownFromPlainText("hello\nworld"),
       "hello\n\nworld\n");
   expectString(
       "editor text escapes literals",
-      fastmarkdown::markdownFromPlainText("**not bold** #tag"),
+      jetmarkdown::markdownFromPlainText("**not bold** #tag"),
       "\\*\\*not bold\\*\\* #tag\n");
   expectString(
       "editor text escapes line starts",
-      fastmarkdown::markdownFromPlainText("# not a heading\n1. not a list"),
+      jetmarkdown::markdownFromPlainText("# not a heading\n1. not a list"),
       "\\# not a heading\n\n1\\. not a list\n");
   expectString(
       "editor text stable round trip",
-      fastmarkdown::plainTextFromMarkdown(
-          fastmarkdown::markdownFromPlainText("line one\nline two")),
+      jetmarkdown::plainTextFromMarkdown(
+          jetmarkdown::markdownFromPlainText("line one\nline two")),
       "line one\nline two");
   expectString(
       "editor setValue flattens structure",
-      fastmarkdown::plainTextFromMarkdown("# Title\n\nbody with **bold**\n\n- a\n- b"),
+      jetmarkdown::plainTextFromMarkdown("# Title\n\nbody with **bold**\n\n- a\n- b"),
       "Title\nbody with bold\na\nb");
 
   // --- Editor styled runs (E2) ---
-  using fastmarkdown::MarkBold;
-  using fastmarkdown::MarkInlineCode;
-  using fastmarkdown::MarkItalic;
-  using fastmarkdown::MarkSpoiler;
-  using fastmarkdown::MarkStrikethrough;
-  using fastmarkdown::MarkSubscript;
-  using fastmarkdown::MarkSuperscript;
+  using jetmarkdown::MarkBold;
+  using jetmarkdown::MarkInlineCode;
+  using jetmarkdown::MarkItalic;
+  using jetmarkdown::MarkSpoiler;
+  using jetmarkdown::MarkStrikethrough;
+  using jetmarkdown::MarkSubscript;
+  using jetmarkdown::MarkSuperscript;
 
   expectString(
       "styled bold run",
-      fastmarkdown::markdownFromStyledText("hello world", {{0, 5, MarkBold}}),
+      jetmarkdown::markdownFromStyledText("hello world", {{0, 5, MarkBold}}),
       "**hello** world\n");
   expectString(
       "styled code ignores nested marks",
-      fastmarkdown::markdownFromStyledText(
+      jetmarkdown::markdownFromStyledText(
           "x code y", {{2, 6, MarkInlineCode | MarkBold}}),
       "x **`code`** y\n");
   expectString(
       "styled run clipped at newline",
-      fastmarkdown::markdownFromStyledText("ab\ncd", {{0, 5, MarkBold}}),
+      jetmarkdown::markdownFromStyledText("ab\ncd", {{0, 5, MarkBold}}),
       "**ab**\n\n**cd**\n");
   expectString(
       "styled marks escape content",
-      fastmarkdown::markdownFromStyledText("a*b", {{0, 3, MarkBold}}),
+      jetmarkdown::markdownFromStyledText("a*b", {{0, 3, MarkBold}}),
       "**a\\*b**\n");
 
   expectStyledRoundTrip("styled rt plain", "just text", {});
@@ -537,16 +537,16 @@ int main() {
 
   expectString(
       "styled extraction",
-      dumpStyled(fastmarkdown::styledTextFromMarkdown("a **b** `c`")),
+      dumpStyled(jetmarkdown::styledTextFromMarkdown("a **b** `c`")),
       "\"a b c\" 2:3:1 4:5:8");
 
   expectString(
       "styled run trims edge spaces",
-      fastmarkdown::markdownFromStyledText("hi bold", {{2, 7, MarkBold}}),
+      jetmarkdown::markdownFromStyledText("hi bold", {{2, 7, MarkBold}}),
       "hi **bold**\n");
   expectString(
       "styled whitespace-only run drops",
-      fastmarkdown::markdownFromStyledText("a b", {{1, 2, MarkBold}}),
+      jetmarkdown::markdownFromStyledText("a b", {{1, 2, MarkBold}}),
       "a b\n");
   // The pad space survives the code-span round trip (CommonMark strips one
   // leading/trailing space pair), so the content keeps its edge spaces.
@@ -554,8 +554,8 @@ int main() {
       "styled code run keeps spaces", "x y z", {{1, 4, MarkInlineCode}});
 
   // --- Editor line blocks (E3) ---
-  using fastmarkdown::EditorBlockType;
-  using fastmarkdown::EditorLine;
+  using jetmarkdown::EditorBlockType;
+  using jetmarkdown::EditorLine;
   const EditorLine P = {EditorBlockType::Paragraph, 0};
   const EditorLine Q = {EditorBlockType::Quote, 0};
   const EditorLine C = {EditorBlockType::Code, 0};
@@ -564,29 +564,29 @@ int main() {
 
   expectString(
       "editor heading line",
-      fastmarkdown::markdownFromEditor(
+      jetmarkdown::markdownFromEditor(
           "Title\nbody", {}, {{EditorBlockType::Heading, 2}, P}),
       "## Title\n\nbody\n");
   expectString(
       "editor quote lines merge",
-      fastmarkdown::markdownFromEditor("a\nb", {}, {Q, Q}),
+      jetmarkdown::markdownFromEditor("a\nb", {}, {Q, Q}),
       "> a\n>\n> b\n");
   expectString(
       "editor code lines merge raw",
-      fastmarkdown::markdownFromEditor(
+      jetmarkdown::markdownFromEditor(
           "x = 1\ny *= 2", {{0, 5, MarkBold}}, {C, C}),
       "```\nx = 1\ny *= 2\n```\n");
   expectString(
       "editor bullet list",
-      fastmarkdown::markdownFromEditor("a\nb", {}, {UL, UL}),
+      jetmarkdown::markdownFromEditor("a\nb", {}, {UL, UL}),
       "- a\n- b\n");
   expectString(
       "editor ordered list",
-      fastmarkdown::markdownFromEditor("a\nb", {}, {OL, OL}),
+      jetmarkdown::markdownFromEditor("a\nb", {}, {OL, OL}),
       "1. a\n2. b\n");
   expectString(
       "editor mixed blocks",
-      fastmarkdown::markdownFromEditor(
+      jetmarkdown::markdownFromEditor(
           "Title\nintro\nitem", {{0, 5, MarkBold}},
           {{EditorBlockType::Heading, 1}, P, UL}),
       "# **Title**\n\nintro\n\n- item\n");
@@ -615,45 +615,45 @@ int main() {
 
   expectString(
       "editor extraction with blocks",
-      dumpEditor(fastmarkdown::editorFromMarkdown(
+      dumpEditor(jetmarkdown::editorFromMarkdown(
           "# Title\n\n- a\n- **b**\n\n> q\n\n```\nx\n```")),
       "\"Title\na\nb\nq\nx\" 8:9:1 | 1.1 4 4 2 3");
 
   // --- Editor links + mentions (E4) ---
   expectString(
       "editor link run serializes",
-      fastmarkdown::markdownFromEditor(
+      jetmarkdown::markdownFromEditor(
           "visit the docs now", {}, {}, {{6, 14, "https://x.dev"}}),
       "visit [the docs](https://x.dev) now\n");
   expectString(
       "editor mention link",
-      fastmarkdown::markdownFromEditor(
+      jetmarkdown::markdownFromEditor(
           "ping @ali ok", {}, {}, {{5, 9, "users://ali"}}),
       "ping [@ali](users://ali) ok\n");
   expectString(
       "editor marked link label",
-      fastmarkdown::markdownFromEditor(
+      jetmarkdown::markdownFromEditor(
           "see docs here",
-          {{4, 8, fastmarkdown::MarkBold}},
+          {{4, 8, jetmarkdown::MarkBold}},
           {},
           {{4, 8, "https://x.dev"}}),
       "see [**docs**](https://x.dev) here\n");
   expectString(
       "editor link extraction",
-      dumpEditor(fastmarkdown::editorFromMarkdown(
+      dumpEditor(jetmarkdown::editorFromMarkdown(
           "visit [the docs](https://x.dev) and [@ali](users://ali)")),
       "\"visit the docs and @ali\" | 0 [6:14 https://x.dev] [19:23 users://ali]");
   expectString(
       "editor autolink extraction",
-      dumpEditor(fastmarkdown::editorFromMarkdown("see https://x.dev now")),
+      dumpEditor(jetmarkdown::editorFromMarkdown("see https://x.dev now")),
       "\"see https://x.dev now\" | 0 [4:17 https://x.dev]");
   expectString(
       "editor link in list item",
-      fastmarkdown::markdownFromEditor(
+      jetmarkdown::markdownFromEditor(
           "docs\nother",
           {},
-          {{fastmarkdown::EditorBlockType::Bullet, 0},
-           {fastmarkdown::EditorBlockType::Bullet, 0}},
+          {{jetmarkdown::EditorBlockType::Bullet, 0},
+           {jetmarkdown::EditorBlockType::Bullet, 0}},
           {{0, 4, "https://x.dev"}}),
       "- [docs](https://x.dev)\n- other\n");
 

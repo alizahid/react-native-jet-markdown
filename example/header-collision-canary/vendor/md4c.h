@@ -1,6 +1,6 @@
 // Stand-in for a FORKED md4c (react-native-enriched-markdown ships one
 // with spoiler extensions). The canary asserts that a quoted include of
-// "md4c.h" resolves to THIS file, not FastMarkdown's vanilla copy.
+// "md4c.h" resolves to THIS file, not JetMarkdown's vanilla copy.
 #pragma once
 
 #define CANARY_MD4C_FORK 1
