@@ -34,6 +34,7 @@ using namespace facebook::react;
 
 static void JMDSetNeedsDisplayDeep(UIView *view);
 static CGRect JMDScreenFrameOfView(UIView *view);
+static BOOL JMDIsScrollInProgress(UIView *view);
 
 @implementation JetMarkdownView {
   NSString *_markdown;
@@ -166,10 +167,17 @@ static CGRect JMDScreenFrameOfView(UIView *view);
 }
 
 // Touches that do not start on an interactive range are never tracked, so
-// they cannot interfere with an ancestor scroll view's pan.
+// they cannot interfere with an ancestor scroll view's pan. A touch that
+// lands mid-scroll is a scroll-stopper, not a press (Pressable semantics) —
+// checked from the deepest content view so nested code/table scrollers and
+// the outer list both count.
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)recognizer
        shouldReceiveTouch:(UITouch *)touch {
-  return [self jmdIsInteractiveAtPoint:[touch locationInView:self]];
+  const CGPoint point = [touch locationInView:self];
+  if (![self jmdIsInteractiveAtPoint:point]) {
+    return NO;
+  }
+  return !JMDIsScrollInProgress([self jmdContentViewAtPoint:point inView:self]);
 }
 
 // Non-interactive points fall through to ancestors so a wrapping pressable
@@ -182,7 +190,30 @@ static CGRect JMDScreenFrameOfView(UIView *view);
   if (result == self && ![self jmdIsInteractiveAtPoint:point]) {
     return nil;
   }
+  // Mid-scroll, an interactive point is not claimed either: hit-testing runs
+  // before the touch is delivered, so isDecelerating is still reliable here
+  // (by shouldReceiveTouch: time the same touch may have already stopped the
+  // scroll). Falling through lets the ancestor scroll view take the touch
+  // and stop, exactly like tapping a Pressable during momentum.
+  if (result == self && JMDIsScrollInProgress(self)) {
+    return nil;
+  }
   return result;
+}
+
+// YES when any scroll view on the path from `view` up through the window is
+// being dragged or is decelerating — a press landing then must only stop
+// the scroll, never fire.
+static BOOL JMDIsScrollInProgress(UIView *view) {
+  for (UIView *ancestor = view; ancestor != nil; ancestor = ancestor.superview) {
+    if ([ancestor isKindOfClass:UIScrollView.class]) {
+      UIScrollView *scroll = (UIScrollView *)ancestor;
+      if (scroll.isDecelerating || scroll.isDragging) {
+        return YES;
+      }
+    }
+  }
+  return NO;
 }
 
 // Scrolling always wins: a drag that begins on a link still pans the list
