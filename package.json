@@ -56,7 +56,7 @@
     "example": "bun run --cwd example",
     "fix": "ultracite fix",
     "prepare": "bob build && husky",
-    "release": "release-it --only-version",
+    "release": "release-it --only-version=true",
     "test": "bun test src && cpp/tests/run_tests.sh",
     "typecheck": "tsc"
   },
