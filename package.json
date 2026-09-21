@@ -45,7 +45,8 @@
     "!**/__tests__",
     "!**/__fixtures__",
     "!**/__mocks__",
-    "!**/.*"
+    "!**/.*",
+    "CHANGELOG.md"
   ],
   "workspaces": [
     "example"
@@ -135,7 +136,8 @@
       "publish": true
     },
     "github": {
-      "release": true
+      "release": true,
+      "releaseNotes": "awk '/^## / { if (section++) exit; next } section' CHANGELOG.md"
     },
     "plugins": {
       "@release-it/conventional-changelog": {

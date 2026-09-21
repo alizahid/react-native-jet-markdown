@@ -22,7 +22,9 @@
 
 ## Supported markdown
 
-Headings, paragraphs, images, GFM tables (horizontal scroll with intelligently sized columns), spoilers (Reddit `>!text!<` **and** Discord `||text||`), superscript (`^sup^`, Reddit `^word` and `^(multi word)`), subscript (`~sub~`), bold / italic / strikethrough, ordered + unordered lists (nested), links, mentions, inline code, code blocks (horizontally scrolling, monospace), block quotes, and thematic breaks.
+Headings, paragraphs, images, [inline videos](#inline-videos) (iOS), GFM tables (horizontal scroll with intelligently sized columns), spoilers (Reddit `>!text!<` **and** Discord `||text||`), superscript (`^sup^`, Reddit `^word` and `^(multi word)`), subscript (`~sub~`), bold / italic / strikethrough, ordered + unordered lists (nested), links, mentions, inline code, code blocks (horizontally scrolling, monospace), block quotes, and thematic breaks.
+
+See the [changelog](./CHANGELOG.md) for release notes.
 
 ## Installation
 
@@ -149,7 +151,7 @@ A paragraph containing only an image renders as a block image, aspect-fit to the
 />
 ```
 
-On iOS, install `react-native-jet-video` (a version including `JetVideoInlineView`)
+On iOS, install `react-native-jet-video` 1.1.0 or later
 and its `react-native-nitro-modules` peer, then install pods and rebuild the app.
 The native player is discovered automatically; no JS renderer configuration is needed.
 It reuses Jet Video's player pool, caching, native controls, fullscreen, and
