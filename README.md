@@ -33,7 +33,7 @@ cd ios && pod install
 
 Requires React Native 0.86+ with the New Architecture (Fabric).
 
-> **Android support is experimental.** The Android renderer implements the same feature set as iOS, but it has had far less real-world use. Expect rough edges and please [report](https://github.com/alizahid/react-native-jet-markdown/issues) anything that renders differently from iOS.
+> **Android support is experimental.** The Android renderer implements most of the iOS feature set (videos currently render as links), but it has had far less real-world use. Expect rough edges and please [report](https://github.com/alizahid/react-native-jet-markdown/issues) anything that renders differently from iOS.
 
 ## Usage
 
@@ -139,6 +139,34 @@ Mentions are plain markdown links with custom schemes — `[@ali](users://ali)`,
 ### Images
 
 A paragraph containing only an image renders as a block image, aspect-fit to the container width. Pass `images` to pre-size known images and avoid layout shift. Loading runs on SDWebImage (iOS) and Glide (Android) — the same cores expo-image uses — with memory + disk caches, request dedupe, and animated GIF playback (plus APNG on iOS).
+
+### Inline videos
+
+```tsx
+<JetMarkdownView
+  markdown={'Before the clip.\n\n<video src="https://example.com/clip.mp4" poster="https://example.com/cover.jpg"/>\n\nAfter the clip.'}
+/>
+```
+
+On iOS, install `react-native-jet-video` (a version including `JetVideoInlineView`)
+and its `react-native-nitro-modules` peer, then install pods and rebuild the app.
+The native player is discovered automatically; no JS renderer configuration is needed.
+It reuses Jet Video's player pool, caching, native controls, fullscreen, and
+visibility lifecycle. Playback starts on tap, with a full-width 16:9 frame. Scrolling below Jet
+Video’s visibility threshold pauses playback; returning onscreen requires another tap.
+The supplied poster stays visible until the first play.
+
+Both `<video src="…" poster="…"/>` and `<video src="…" poster="…"></video>`
+are accepted. `src` must be nonempty; `poster` is optional. Attribute names are
+case-insensitive, values accept HTML quoting and entities, and code blocks,
+inline code, and escaped tags remain literal. Other video attributes and nested
+`<source>` elements are not interpreted. Videos split surrounding prose into
+text/player blocks, including inside lists and quotes. Tables and spoilers use
+video links instead of embedded players.
+
+Jet Video is optional. Without the native adapter, iOS displays an **Open video**
+button using the usual link callback. Android displays the source URL as a link;
+Jet Video currently supports iOS only. The web fallback still shows raw markdown.
 
 ## Using in lists
 

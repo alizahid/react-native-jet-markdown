@@ -53,6 +53,36 @@ void expectNotContains(const char* name, const std::string& markdown, const std:
 int main() {
   using namespace std::string_literals;
 
+  // HTML videos are recognized by md4c only outside code and escaped text.
+  expectAst("inline video", R"(before <video src="clip.mp4" poster="cover.jpg"/> after)",
+      R"({"type":"document","children":[{"type":"paragraph","children":[{"type":"text","text":"before "},{"type":"video","text":"cover.jpg","url":"clip.mp4"},{"type":"text","text":" after"}]}]})");
+  expectAst("paired video", "<video src='clip.mp4'></video>",
+      R"({"type":"document","children":[{"type":"paragraph","children":[{"type":"video","url":"clip.mp4"}]}]})");
+  expectContains("video HTML attributes", "<VIDEO\nPOSTER='a&amp;b.jpg' controls SRC=clip.mp4></VIDEO>",
+      R"({"type":"video","text":"a&b.jpg","url":"clip.mp4"})");
+  expectContains("multiline quoted delimiter", "<video src='clip.mp4' poster='a>\nb.jpg'/>",
+      R"({"type":"video","text":"a>\nb.jpg","url":"clip.mp4"})");
+  expectNotContains("multiline comment with tag", "<!-- >\n<video src='clip.mp4'/>\n-->", R"("type":"video")");
+  expectContains("adjacent HTML tags", "<span></span><video src='clip.mp4'/><video src='two.mp4'/>", R"("url":"two.mp4")");
+  expectContains("video quoted delimiter", R"(<video src="a>b.mp4" poster="&#x63;.jpg" />)",
+      R"({"type":"video","text":"c.jpg","url":"a>b.mp4"})");
+  expectContains("video duplicate source", R"(<video src="first.mp4" src="second.mp4"/>)",
+      R"("url":"first.mp4")");
+  expectContains("video in list", "- <video src='clip.mp4'/>", R"("type":"video")");
+  expectContains("video in quote", "> <video src='clip.mp4'/>", R"("type":"video")");
+  expectContains("video inside emphasis", "**before <video src='clip.mp4'/> after**", R"("type":"video")");
+  for (const auto& literal : {
+      "`<video src='clip.mp4'/>`", "```html\n<video src='clip.mp4'/>\n```",
+      "    <video src='clip.mp4'/>", "\\<video src='clip.mp4'/>",
+      "&lt;video src='clip.mp4'/>", "<video src=''/>", "<video poster='cover.jpg'/>",
+      "<videoplayer src='clip.mp4'/>", "<video src='unclosed.mp4/>",
+      "![<video src='clip.mp4'/>](image.jpg)", "<!-- <video src='clip.mp4'/> -->"}) {
+    expectNotContains("literal video syntax", literal, R"("type":"video")");
+  }
+  expectContains("unsupported HTML remains literal", "<span>text</span>", R"("text":"<span>text</span>")");
+  expectContains("invalid paired video remains literal", "<video src=''></video>", R"("text":"<video src=''></video>")");
+  expectContains("unmatched close remains literal", "</video>", R"("text":"</video>")");
+
   // --- Basics ---
   expectAst(
       "paragraph",

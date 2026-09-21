@@ -264,6 +264,10 @@ static CGSize JMDUsedSize(NSTextStorage *storage) {
       measured.height = contentHeight + block.layoutStyle.verticalInset;
       break;
     }
+    case JMDBlockKindVideo:
+      measured.height = width * 9.0 / 16.0;
+      measured.contentWidth = width;
+      break;
     case JMDBlockKindImage: {
       NSArray<NSNumber *> *known = block.imageUrl != nil ? imageSizes[block.imageUrl] : nil;
       CGFloat displayH;

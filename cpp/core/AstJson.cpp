@@ -19,6 +19,7 @@ const char* typeName(NodeType type) {
     case NodeType::TableRow: return "tableRow";
     case NodeType::TableCell: return "tableCell";
     case NodeType::Image: return "image";
+    case NodeType::Video: return "video";
     case NodeType::ThematicBreak: return "thematicBreak";
     case NodeType::Text: return "text";
     case NodeType::SoftBreak: return "softBreak";

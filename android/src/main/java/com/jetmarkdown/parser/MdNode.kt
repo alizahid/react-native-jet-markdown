@@ -23,7 +23,8 @@ enum class MdNodeType(val id: Int) {
   INLINE_CODE(19),
   SPOILER(20),
   SUPERSCRIPT(21),
-  SUBSCRIPT(22);
+  SUBSCRIPT(22),
+  VIDEO(23);
 
   companion object {
     private val byId = entries.associateBy { it.id }

@@ -1,6 +1,7 @@
 #include "Parser.h"
 
 #include <cstdlib>
+#include <cctype>
 
 #include "../md4c/md4c.h"
 #include "InlineExtensions.h"
@@ -116,6 +117,64 @@ std::string attributeToString(const MD_ATTRIBUTE& attr) {
   return out;
 }
 
+// md4c recognizes tag boundaries; only video tags acquire rendering semantics.
+// Keep the existing binary AST layout: video's text field carries its poster.
+struct VideoTag {
+  bool closing = false;
+  bool selfClosing = false;
+  std::string source;
+  std::string poster;
+};
+
+bool parseVideoTag(const std::string& html, VideoTag& tag) {
+  size_t i = 1;
+  if (html.size() < 7 || html.front() != '<' || html.back() != '>') return false;
+  if (html[i] == '/') { tag.closing = true; i++; }
+  auto lower = [](char c) { return static_cast<char>(std::tolower(static_cast<unsigned char>(c))); };
+  auto space = [](char c) { return std::isspace(static_cast<unsigned char>(c)); };
+  for (char c : std::string("video")) {
+    if (i >= html.size() || lower(html[i++]) != c) return false;
+  }
+  if (i < html.size() && !space(html[i]) && html[i] != '/' && html[i] != '>') return false;
+  bool hasSource = false, hasPoster = false;
+  while (i < html.size() - 1) {
+    while (i < html.size() - 1 && space(html[i])) i++;
+    if (html[i] == '>') break;
+    if (html[i] == '/') { tag.selfClosing = true; return !tag.closing && i + 2 == html.size(); }
+    if (tag.closing) return false;
+    std::string name;
+    while (i < html.size() - 1 && !space(html[i]) && html[i] != '=' && html[i] != '/' && html[i] != '>') name += lower(html[i++]);
+    if (name.empty()) return false;
+    while (i < html.size() - 1 && space(html[i])) i++;
+    std::string value;
+    if (html[i] == '=') {
+      i++;
+      while (i < html.size() - 1 && space(html[i])) i++;
+      char quote = (html[i] == '\'' || html[i] == '"') ? html[i++] : 0;
+      size_t start = i;
+      if (quote) {
+        while (i < html.size() - 1 && html[i] != quote) i++;
+        if (html[i] != quote) return false;
+      } else {
+        while (i < html.size() - 1 && !space(html[i])) i++;
+      }
+      const std::string raw = html.substr(start, i - start);
+      for (size_t j = 0; j < raw.size();) {
+        size_t end = raw[j] == '&' ? raw.find(';', j + 1) : std::string::npos;
+        if (end != std::string::npos) {
+          appendEntity(value, raw.data() + j, end - j + 1);
+          j = end + 1;
+        } else value += raw[j++];
+      }
+      if (quote) i++;
+    }
+    // HTML uses the first occurrence of duplicate attributes.
+    if (name == "src" && !hasSource) { tag.source = value; hasSource = true; }
+    if (name == "poster" && !hasPoster) { tag.poster = value; hasPoster = true; }
+  }
+  return true;
+}
+
 // Nesting cap: malicious documents (">"×20000) otherwise build ASTs deep
 // enough to overflow the stack in every recursive consumer. Content beyond
 // the cap flattens into the deepest allowed node.
@@ -131,6 +190,54 @@ struct ParseState {
   Node* imageNode = nullptr;
   int imageSpanDepth = 0;
   bool inHeaderRow = false;
+  std::vector<bool> videoTags;
+  std::string pendingHtml;
+
+  // HTML can span several md4c callbacks. Flush at the next non-HTML
+  // event, then split complete tags without treating quoted '>' or comment
+  // contents as tag boundaries.
+  void flushHtml() {
+    size_t start = 0;
+    while (start < pendingHtml.size()) {
+      size_t end = start;
+      const char* terminator = nullptr;
+      if (pendingHtml.compare(start, 4, "<!--") == 0) terminator = "-->";
+      else if (pendingHtml.compare(start, 9, "<![CDATA[") == 0) terminator = "]]>";
+      else if (pendingHtml.compare(start, 2, "<?") == 0) terminator = "?>";
+      if (terminator) {
+        end = pendingHtml.find(terminator, start);
+        end = end == std::string::npos ? pendingHtml.size() : end + std::string(terminator).size();
+      } else {
+        char quote = 0;
+        for (; end < pendingHtml.size(); end++) {
+          char c = pendingHtml[end];
+          if (quote) { if (c == quote) quote = 0; }
+          else if (c == '\'' || c == '"') quote = c;
+          else if (c == '>') { end++; break; }
+        }
+      }
+      const std::string html = pendingHtml.substr(start, end - start);
+      VideoTag tag;
+      if (!parseVideoTag(html, tag)) {
+        appendVerbatimText(html);
+      } else if (tag.closing) {
+        bool rendered = !videoTags.empty() && videoTags.back();
+        if (!videoTags.empty()) videoTags.pop_back();
+        if (!rendered) appendVerbatimText(html);
+      } else {
+        const bool valid = !tag.source.empty();
+        if (!tag.selfClosing) videoTags.push_back(valid);
+        if (valid) {
+          Node* video = doc->arena.alloc(NodeType::Video);
+          video->url = tag.source;
+          video->text = tag.poster;
+          top()->children.push_back(video);
+        } else appendVerbatimText(html);
+      }
+      start = end;
+    }
+    pendingHtml.clear();
+  }
 
   Node* top() {
     return stack.back();
@@ -188,6 +295,7 @@ struct ParseState {
 
 int onEnterBlock(MD_BLOCKTYPE type, void* detail, void* userdata) {
   auto* state = static_cast<ParseState*>(userdata);
+  state->flushHtml();
   // Depth cap: swallow pushes beyond the limit (THEAD/TBODY/HR/HTML never
   // push, and their leaves never pop, so they bypass the accounting).
   if (type != MD_BLOCK_THEAD && type != MD_BLOCK_TBODY &&
@@ -271,7 +379,7 @@ int onEnterBlock(MD_BLOCKTYPE type, void* detail, void* userdata) {
       break;
     }
     case MD_BLOCK_HTML:
-      // MD_FLAG_NOHTML is set; not reached.
+      // MD_FLAG_NOHTMLBLOCKS is set; not reached.
       break;
   }
   return 0;
@@ -280,6 +388,8 @@ int onEnterBlock(MD_BLOCKTYPE type, void* detail, void* userdata) {
 int onLeaveBlock(MD_BLOCKTYPE type, void* detail, void* userdata) {
   (void)detail;
   auto* state = static_cast<ParseState*>(userdata);
+  state->flushHtml();
+  if (type == MD_BLOCK_P || type == MD_BLOCK_H) state->videoTags.clear();
   switch (type) {
     case MD_BLOCK_THEAD:
     case MD_BLOCK_TBODY:
@@ -299,6 +409,7 @@ int onLeaveBlock(MD_BLOCKTYPE type, void* detail, void* userdata) {
 
 int onEnterSpan(MD_SPANTYPE type, void* detail, void* userdata) {
   auto* state = static_cast<ParseState*>(userdata);
+  state->flushHtml();
   if (state->imageNode != nullptr) {
     // Styled spans inside image alt text are flattened.
     state->imageSpanDepth++;
@@ -352,6 +463,7 @@ int onEnterSpan(MD_SPANTYPE type, void* detail, void* userdata) {
 int onLeaveSpan(MD_SPANTYPE type, void* detail, void* userdata) {
   (void)detail;
   auto* state = static_cast<ParseState*>(userdata);
+  state->flushHtml();
   if (state->imageNode != nullptr) {
     if (state->imageSpanDepth > 0) {
       // Spans nested inside alt text unwind here — including nested images,
@@ -374,6 +486,7 @@ int onLeaveSpan(MD_SPANTYPE type, void* detail, void* userdata) {
 
 int onText(MD_TEXTTYPE type, const MD_CHAR* text, MD_SIZE size, void* userdata) {
   auto* state = static_cast<ParseState*>(userdata);
+  if (type != MD_TEXT_HTML) state->flushHtml();
 
   if (state->imageNode != nullptr) {
     switch (type) {
@@ -397,8 +510,10 @@ int onText(MD_TEXTTYPE type, const MD_CHAR* text, MD_SIZE size, void* userdata) 
   switch (type) {
     case MD_TEXT_NORMAL:
     case MD_TEXT_CODE:
-    case MD_TEXT_HTML:
       state->appendText(text, size);
+      break;
+    case MD_TEXT_HTML:
+      state->pendingHtml.append(text, size);
       break;
     case MD_TEXT_ENTITY: {
       std::string translated;
@@ -448,7 +563,7 @@ std::unique_ptr<MarkdownDocument> parseMarkdown(const std::string& markdown) {
 
   MD_PARSER parser = {};
   parser.abi_version = 0;
-  parser.flags = MD_FLAG_TABLES | MD_FLAG_PERMISSIVEAUTOLINKS | MD_FLAG_NOHTML |
+  parser.flags = MD_FLAG_TABLES | MD_FLAG_PERMISSIVEAUTOLINKS | MD_FLAG_NOHTMLBLOCKS |
       MD_FLAG_PERMISSIVEATXHEADERS; // Reddit accepts "###Heading"
   parser.enter_block = onEnterBlock;
   parser.leave_block = onLeaveBlock;

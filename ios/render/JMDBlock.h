@@ -12,6 +12,7 @@ typedef NS_ENUM(NSInteger, JMDBlockKind) {
   JMDBlockKindDivider,
   JMDBlockKindImage,
   JMDBlockKindTable,
+  JMDBlockKindVideo,
 };
 
 @class JMDBlock;
@@ -69,6 +70,10 @@ FOUNDATION_EXPORT NSAttributedStringKey const JMDRunBackgroundAttributeName;
 @property (nonatomic, assign) UIEdgeInsets headerCellPadding;
 @property (nonatomic, assign) CGFloat minColumnWidth;
 @property (nonatomic, assign) CGFloat maxColumnWidth;
+
+// Video blocks (16:9 inline player).
+@property (nonatomic, copy, nullable) NSString *videoUrl;
+@property (nonatomic, copy, nullable) NSString *videoPoster;
 
 // Image blocks.
 @property (nonatomic, copy, nullable) NSString *imageUrl;

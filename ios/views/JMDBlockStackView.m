@@ -4,6 +4,7 @@
 #import "JMDBoxViews.h"
 #import "JMDImageView.h"
 #import "JMDTableView.h"
+#import "JMDVideoView.h"
 
 @implementation JMDBlockStackView {
   NSArray<JMDMeasuredBlock *> *_measured;
@@ -77,6 +78,14 @@
       JMDImageView *view = [old isKindOfClass:JMDImageView.class]
           ? (JMDImageView *)old
           : [[JMDImageView alloc] initWithFrame:CGRectZero];
+      view.host = self.host;
+      [view bind:measured.block];
+      return view;
+    }
+    case JMDBlockKindVideo: {
+      JMDVideoView *view = [old isKindOfClass:JMDVideoView.class]
+          ? (JMDVideoView *)old
+          : [[JMDVideoView alloc] initWithFrame:CGRectZero];
       view.host = self.host;
       [view bind:measured.block];
       return view;

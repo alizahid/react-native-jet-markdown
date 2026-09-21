@@ -31,6 +31,7 @@ enum class NodeType : uint8_t {
   Spoiler = 20,
   Superscript = 21,
   Subscript = 22,
+  Video = 23,
 };
 
 enum class CellAlign : uint8_t {
@@ -43,6 +44,7 @@ enum class CellAlign : uint8_t {
 // Node field usage by type:
 //   Text:       text = content
 //   Image:      text = alt text, url = source
+//   Video:      text = poster URL, url = source
 //   CodeBlock:  text = code content, url = info string (language)
 //   InlineCode: text = content
 //   Link:       url = destination, children = label

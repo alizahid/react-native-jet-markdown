@@ -142,7 +142,7 @@ object SpannableRenderer {
   private fun isInline(type: MdNodeType): Boolean = when (type) {
     MdNodeType.TEXT, MdNodeType.SOFT_BREAK, MdNodeType.HARD_BREAK, MdNodeType.BOLD,
     MdNodeType.ITALIC, MdNodeType.STRIKETHROUGH, MdNodeType.LINK, MdNodeType.INLINE_CODE,
-    MdNodeType.SPOILER, MdNodeType.SUPERSCRIPT, MdNodeType.SUBSCRIPT, MdNodeType.IMAGE,
+    MdNodeType.SPOILER, MdNodeType.SUPERSCRIPT, MdNodeType.SUBSCRIPT, MdNodeType.IMAGE, MdNodeType.VIDEO,
     -> true
     else -> false
   }
@@ -571,6 +571,9 @@ object SpannableRenderer {
         }
         MdNodeType.SPOILER ->
           walk(builder, node, attrs.copy(spoilerId = context.nextSpoilerId()), context)
+        MdNodeType.VIDEO -> appendRun(
+          builder, node.url, context.apply(attrs.copy(linkUrl = node.url), "link"),
+        )
         MdNodeType.IMAGE -> appendRun(builder, node.text, attrs)
         else -> walk(builder, node, attrs, context)
       }

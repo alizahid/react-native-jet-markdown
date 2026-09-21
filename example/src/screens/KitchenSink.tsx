@@ -8,6 +8,19 @@ import {
 
 const MARKDOWN = `# Jet Markdown
 
+## Inline video
+
+Text before the self-closing video.
+<video src="https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4" poster="https://peach.blender.org/wp-content/uploads/title_anouncement.jpg"/>
+Text after the video, with **bold formatting** preserved.
+
+> Paired video inside a quote:
+>
+> <video src="https://media.w3.org/2010/05/sintel/trailer.mp4" poster="https://media.w3.org/2010/05/sintel/poster.png"></video>
+
+Escaped code stays literal: \`<video src="clip.mp4"/>\`.
+
+
 Paragraph with **bold**, _italic_, ~~strikethrough~~, and **bold _italic_ nested** runs.
 
 ## Links & mentions

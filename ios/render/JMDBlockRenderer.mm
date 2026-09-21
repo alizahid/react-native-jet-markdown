@@ -33,6 +33,7 @@ bool isInlineType(NodeType type) {
     case NodeType::Spoiler:
     case NodeType::Superscript:
     case NodeType::Subscript:
+    case NodeType::Video:
     case NodeType::Image:
       return true;
     default:
@@ -347,7 +348,7 @@ class BlockBuilder {
         for (const Node *node : inlineRun) {
           synthetic.children.push_back(const_cast<Node *>(node));
         }
-        [out addObject:textBlock(&synthetic, inherited)];
+        renderBlock(&synthetic, inherited, out);
         inlineRun.clear();
       }
     };
@@ -364,6 +365,47 @@ class BlockBuilder {
     return out;
   }
 
+  // Split text around embedded videos while preserving surrounding inline
+  // styles. Spoilers stay text links so hidden media is never exposed.
+  std::vector<Node *> splitVideos(const Node *node, jetmarkdown::AstArena &arena) {
+    if (node->type == NodeType::Video || node->children.empty() ||
+        node->type == NodeType::Spoiler) return {const_cast<Node *>(node)};
+    std::vector<Node *> result;
+    Node *run = nullptr;
+    for (const Node *child : node->children) {
+      for (Node *part : splitVideos(child, arena)) {
+        if (part->type == NodeType::Video) {
+          run = nullptr;
+          result.push_back(part);
+        } else {
+          if (run == nullptr) {
+            run = arena.alloc(node->type);
+            *run = *node;
+            run->children.clear();
+            result.push_back(run);
+          }
+          run->children.push_back(part);
+        }
+      }
+    }
+    return result;
+  }
+
+  static bool hasVideo(const Node *node) {
+    if (node->type == NodeType::Video) return true;
+    if (node->type == NodeType::Spoiler) return false;
+    for (const Node *child : node->children) if (hasVideo(child)) return true;
+    return false;
+  }
+
+  static bool hasVisibleText(const Node *node) {
+    if (node->type == NodeType::SoftBreak || node->type == NodeType::HardBreak) return false;
+    if (node->type == NodeType::Image || node->type == NodeType::Video) return true;
+    if (node->text.find_first_not_of(" \t\r\n") != std::string::npos) return true;
+    for (const Node *child : node->children) if (hasVisibleText(child)) return true;
+    return false;
+  }
+
   // -- block level ---------------------------------------------------------
 
   void renderBlock(
@@ -376,8 +418,21 @@ class BlockBuilder {
         const Node *image = singleImageChild(node);
         if (image != nullptr) {
           [out addObject:imageBlock(image)];
-        } else {
+        } else if (!hasVideo(node)) {
           [out addObject:textBlock(node, inherited)];
+        } else {
+          jetmarkdown::AstArena arena;
+          for (const Node *part : splitVideos(node, arena)) {
+            if (part->type == NodeType::Video) {
+              JMDBlock *block = [JMDBlock new];
+              block.kind = JMDBlockKindVideo;
+              block.videoUrl = toNSString(part->url);
+              block.videoPoster = toNSString(part->text);
+              [out addObject:block];
+            } else if (hasVisibleText(part)) {
+              [out addObject:textBlock(part, inherited)];
+            }
+          }
         }
         break;
       }
@@ -841,6 +896,14 @@ class BlockBuilder {
           ResolvedAttrs next = attrs;
           next.spoilerId = spoilerCounter_++;
           walk(output, node, next);
+          break;
+        }
+        case NodeType::Video: {
+          // Tables and spoilers use a link where a player cannot be embedded.
+          ResolvedAttrs next = attrs;
+          next.linkUrl = toNSString(node->url);
+          applyStyle(next, [styles_ textStyleFor:@"link"], fontScale_);
+          append(output, toNSString(node->url), next);
           break;
         }
         case NodeType::Image:
