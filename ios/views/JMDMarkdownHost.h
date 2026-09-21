@@ -4,7 +4,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// Callbacks from block views up to the host component view.
 @protocol JMDMarkdownHost <NSObject>
-- (void)imageIntrinsicSize:(CGSize)size forUrl:(NSString *)url;
+- (void)mediaIntrinsicSize:(CGSize)size forKey:(NSString *)key;
 - (BOOL)isSpoilerRevealed:(NSInteger)spoilerId;
 - (void)toggleSpoiler:(NSInteger)spoilerId;
 - (void)linkPressed:(NSString *)url;

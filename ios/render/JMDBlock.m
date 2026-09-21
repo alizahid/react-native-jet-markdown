@@ -10,6 +10,10 @@
 @end
 
 @implementation JMDBlock
+- (nullable NSString *)intrinsicSizeKey {
+  return self.kind == JMDBlockKindVideo && self.videoUrl != nil
+      ? [@"video:" stringByAppendingString:self.videoUrl] : self.imageUrl;
+}
 @end
 
 @implementation JMDMeasuredBlock

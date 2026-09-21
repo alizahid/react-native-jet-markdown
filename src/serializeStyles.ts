@@ -225,14 +225,18 @@ export function serializeStyles(
     }
     put(out, "paragraph", serializeText(styles.paragraph));
 
-    if (styles.image != null) {
-      const image: Serialized = {};
-      put(image, "borderRadius", styles.image.borderRadius);
-      putColor(image, "backgroundColor", styles.image.backgroundColor);
-      put(image, "height", styles.image.height);
-      put(image, "maxHeight", styles.image.maxHeight);
-      if (Object.keys(image).length > 0) {
-        out.image = image;
+    for (const key of ["image", "video"] as const) {
+      const style = styles[key];
+      if (style == null) {
+        continue;
+      }
+      const media: Serialized = {};
+      put(media, "borderRadius", style.borderRadius);
+      putColor(media, "backgroundColor", style.backgroundColor);
+      put(media, "height", style.height);
+      put(media, "maxHeight", style.maxHeight);
+      if (Object.keys(media).length > 0) {
+        out[key] = media;
       }
     }
 

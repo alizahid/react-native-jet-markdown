@@ -102,6 +102,7 @@ const styles: MarkdownStyles = mergeStyles({
     h3: { color: "#047857", fontWeight: "600" },
   },
   paragraph: { fontSize: 16, color: "#1F2937" },
+  video: { borderRadius: 12, maxHeight: 320 },
   bold: { color: "#B91C1C" },
   italic: { color: "#7C3AED" },
   strikethrough: { color: "#9CA3AF" },

@@ -106,10 +106,13 @@ export interface MarkdownLayoutStyle {
 export interface MarkdownImageStyle {
   backgroundColor?: ColorValue;
   borderRadius?: number;
-  /** Fixed rendered height; wins over the image's intrinsic height. */
+  /** Fixed rendered height; wins over the media's intrinsic height. */
   height?: number;
   maxHeight?: number;
 }
+
+/** Inline videos share the same sizing and appearance options as images. */
+export type MarkdownVideoStyle = MarkdownImageStyle;
 
 export interface MarkdownTableStyle extends MarkdownLayoutStyle {
   /** Upper clamp for computed column widths. Unset = natural width. */
@@ -230,6 +233,7 @@ export interface MarkdownStyles {
   tableHeaderRow?: MarkdownLayoutStyle;
   /** Base style for every row; header/body variants layer on top. */
   tableRow?: MarkdownLayoutStyle;
+  video?: MarkdownVideoStyle;
 }
 
 /**

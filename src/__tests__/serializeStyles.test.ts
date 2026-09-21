@@ -61,6 +61,36 @@ describe("serializeStyles", () => {
     expect(serializeStyles(undefined, undefined)).toBe("{}");
   });
 
+  test("video styles preserve image options without inheriting image overrides", () => {
+    const out = parse(
+      serializeStyles(
+        {
+          image: { height: 120, backgroundColor: "red" },
+          video: {
+            height: 240,
+            maxHeight: 180,
+            borderRadius: 16,
+            backgroundColor: {
+              semantic: ["secondarySystemBackgroundColor"],
+            } as never,
+          },
+        },
+        undefined
+      )
+    );
+    expect(out.image).toEqual({
+      height: 120,
+      backgroundColor: 0xff_ff_00_00 | 0,
+    });
+    expect(out.video).toEqual({
+      height: 240,
+      maxHeight: 180,
+      borderRadius: 16,
+      backgroundColor: { semantic: ["secondarySystemBackgroundColor"] },
+    });
+    expect(serializeStyles({ video: {} }, undefined)).toBe("{}");
+  });
+
   test("main padding shorthand expands into sides", () => {
     const out = parse(
       serializeStyles(undefined, { padding: 16, paddingTop: 4, gap: 8 })

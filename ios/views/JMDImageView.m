@@ -31,9 +31,9 @@
 
 - (void)bind:(JMDBlock *)block {
   _block = block;
-  self.backgroundColor = block.imageBackground ?: UIColor.clearColor;
-  self.layer.cornerRadius = block.imageBorderRadius;
-  self.layer.masksToBounds = block.imageBorderRadius > 0;
+  self.backgroundColor = block.mediaBackground ?: UIColor.clearColor;
+  self.layer.cornerRadius = block.mediaBorderRadius;
+  self.layer.masksToBounds = block.mediaBorderRadius > 0;
 
   NSString *url = block.imageUrl ?: @"";
   if (url.length == 0) {
@@ -56,7 +56,7 @@
                              ![strongSelf->_block.imageUrl isEqualToString:url]) {
                            return;
                          }
-                         [strongSelf.host imageIntrinsicSize:image.size forUrl:url];
+                         [strongSelf.host mediaIntrinsicSize:image.size forKey:url];
                        }];
 }
 

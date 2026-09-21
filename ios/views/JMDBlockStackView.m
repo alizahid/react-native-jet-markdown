@@ -114,7 +114,8 @@
   CGFloat y = 0;
   for (NSUInteger i = 0; i < _measured.count && i < self.subviews.count; i++) {
     JMDMeasuredBlock *measured = _measured[i];
-    const CGFloat childWidth = measured.block.kind == JMDBlockKindImage
+    const CGFloat childWidth = (measured.block.kind == JMDBlockKindImage ||
+                                measured.block.kind == JMDBlockKindVideo)
         ? MIN(measured.contentWidth, width)
         : width;
     self.subviews[i].frame = CGRectMake(0, y, childWidth, measured.height);

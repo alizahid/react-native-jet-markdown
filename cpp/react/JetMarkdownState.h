@@ -9,7 +9,8 @@
 
 namespace facebook::react {
 
-// Shadow-node state: intrinsic sizes of images discovered after loading.
+// Shadow-node state: intrinsic media sizes discovered after loading.
+// Image keys are URLs; video keys are "video:" + URL.
 // The host view publishes sizes here; measureContent reads them so the view
 // grows once an un-presized image arrives.
 class JetMarkdownState final {

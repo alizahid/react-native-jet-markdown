@@ -272,8 +272,10 @@ static BOOL JMDIsScrollInProgress(UIView *view) {
 
 #pragma mark - JMDMarkdownHost
 
-- (void)imageIntrinsicSize:(CGSize)size forUrl:(NSString *)url {
-  [self noteIntrinsicSize:size forUrl:url];
+- (void)mediaIntrinsicSize:(CGSize)size forKey:(NSString *)key {
+  if (isfinite(size.width) && isfinite(size.height) && size.width > 0 && size.height > 0) {
+    [self noteIntrinsicSize:size forUrl:key];
+  }
 }
 
 - (BOOL)isSpoilerRevealed:(NSInteger)spoilerId {

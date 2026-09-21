@@ -417,18 +417,14 @@ class BlockBuilder {
       case NodeType::Heading: {
         const Node *image = singleImageChild(node);
         if (image != nullptr) {
-          [out addObject:imageBlock(image)];
+          [out addObject:mediaBlock(image)];
         } else if (!hasVideo(node)) {
           [out addObject:textBlock(node, inherited)];
         } else {
           jetmarkdown::AstArena arena;
           for (const Node *part : splitVideos(node, arena)) {
             if (part->type == NodeType::Video) {
-              JMDBlock *block = [JMDBlock new];
-              block.kind = JMDBlockKindVideo;
-              block.videoUrl = toNSString(part->url);
-              block.videoPoster = toNSString(part->text);
-              [out addObject:block];
+              [out addObject:mediaBlock(part)];
             } else if (hasVisibleText(part)) {
               [out addObject:textBlock(part, inherited)];
             }
@@ -569,20 +565,26 @@ class BlockBuilder {
     return image;
   }
 
-  JMDBlock *imageBlock(const Node *node) {
-    NSDictionary *section = [styles_ rawSectionFor:@"image"];
+  JMDBlock *mediaBlock(const Node *node) {
+    const bool video = node->type == NodeType::Video;
+    NSDictionary *section = [styles_ rawSectionFor:video ? @"video" : @"image"];
     auto number = [](NSDictionary *dict, NSString *key, CGFloat fallback) -> CGFloat {
       NSNumber *value = [dict[key] isKindOfClass:[NSNumber class]] ? dict[key] : nil;
       return value != nil ? value.doubleValue : fallback;
     };
     JMDBlock *block = [JMDBlock new];
-    block.kind = JMDBlockKindImage;
-    block.imageUrl = toNSString(node->url);
-    block.imageBackground = [JMDTextStyle colorFromJson:section[@"backgroundColor"]];
-    block.imageBorderRadius = number(section, @"borderRadius", 0);
-    block.imageHeight = number(section, @"height", 0);
-    block.imageMaxHeight = number(section, @"maxHeight", 0);
-    block.imagePlaceholder = 200;
+    block.kind = video ? JMDBlockKindVideo : JMDBlockKindImage;
+    if (video) {
+      block.videoUrl = toNSString(node->url);
+      block.videoPoster = toNSString(node->text);
+    } else {
+      block.imageUrl = toNSString(node->url);
+    }
+    block.mediaBackground = [JMDTextStyle colorFromJson:section[@"backgroundColor"]];
+    block.mediaBorderRadius = number(section, @"borderRadius", 0);
+    block.mediaHeight = number(section, @"height", 0);
+    block.mediaMaxHeight = number(section, @"maxHeight", 0);
+    block.mediaPlaceholder = 200;
     return block;
   }
 

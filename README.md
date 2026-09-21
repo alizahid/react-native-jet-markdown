@@ -120,6 +120,7 @@ Every color accepts platform colors (`PlatformColor`, `DynamicColorIOS`) as well
 | `listMarker` | `width`, `marginLeft`, `color` | Fixed-width marker column. Unstyled: sized to the widest marker. `defaultStyles`: 24. |
 | `listItem` | text | Cascades into item content. |
 | `image` | `borderRadius`, `backgroundColor`, `height`, `maxHeight` | `backgroundColor` shows while loading. |
+| `video` | `borderRadius`, `backgroundColor`, `height`, `maxHeight` | Same sizing as images; iOS only. `backgroundColor` shows while loading. |
 | `table` | layout + `minColumnWidth`, `maxColumnWidth` | Unstyled: natural column widths. `defaultStyles`: clamps to `[44, 320]`. |
 | `tableRow` | layout | Base for all rows. `defaultStyles`: 1pt bottom-border separator. |
 | `tableHeaderRow`, `tableBodyRow` | layout | Layer over `tableRow` for header vs body rows. |
@@ -152,7 +153,12 @@ On iOS, install `react-native-jet-video` (a version including `JetVideoInlineVie
 and its `react-native-nitro-modules` peer, then install pods and rebuild the app.
 The native player is discovered automatically; no JS renderer configuration is needed.
 It reuses Jet Video's player pool, caching, native controls, fullscreen, and
-visibility lifecycle. Playback starts on tap, with a full-width 16:9 frame. Scrolling below Jet
+visibility lifecycle. Playback starts on tap. Videos reserve a full-width, 200-point
+placeholder until their dimensions load, then use their natural aspect ratio,
+fitting the available width without upscaling, just like images. `styles.video`
+accepts `backgroundColor`, `borderRadius`, `height`, and `maxHeight` independently
+of `styles.image`. `height` overrides the natural height and `maxHeight` caps it;
+both also apply to the placeholder. Scrolling below Jet
 Video’s visibility threshold pauses playback; returning onscreen requires another tap.
 The supplied poster stays visible until the first play.
 

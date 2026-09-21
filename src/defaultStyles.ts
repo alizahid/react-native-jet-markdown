@@ -38,6 +38,9 @@ export const defaultStyles: MarkdownStyles = {
   image: {
     backgroundColor: "rgba(0, 0, 0, 0.08)",
   },
+  video: {
+    backgroundColor: "rgba(0, 0, 0, 0.08)",
+  },
   inlineCode: {
     backgroundColor: "rgba(0, 0, 0, 0.08)",
   },

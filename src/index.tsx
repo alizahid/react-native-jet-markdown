@@ -22,4 +22,5 @@ export type {
   MarkdownTableStyle,
   MarkdownTextStyle,
   MarkdownUrlEvent,
+  MarkdownVideoStyle,
 } from "./types";

@@ -71,17 +71,21 @@ FOUNDATION_EXPORT NSAttributedStringKey const JMDRunBackgroundAttributeName;
 @property (nonatomic, assign) CGFloat minColumnWidth;
 @property (nonatomic, assign) CGFloat maxColumnWidth;
 
-// Video blocks (16:9 inline player).
+// Video blocks.
 @property (nonatomic, copy, nullable) NSString *videoUrl;
 @property (nonatomic, copy, nullable) NSString *videoPoster;
 
 // Image blocks.
 @property (nonatomic, copy, nullable) NSString *imageUrl;
-@property (nonatomic, strong, nullable) UIColor *imageBackground;
-@property (nonatomic, assign) CGFloat imageBorderRadius;
-@property (nonatomic, assign) CGFloat imageHeight;
-@property (nonatomic, assign) CGFloat imageMaxHeight;
-@property (nonatomic, assign) CGFloat imagePlaceholder;
+
+// Shared image/video appearance and sizing. Video keys are namespaced so
+// the images prop cannot override video metadata for the same URL.
+@property (nonatomic, readonly, nullable) NSString *intrinsicSizeKey;
+@property (nonatomic, strong, nullable) UIColor *mediaBackground;
+@property (nonatomic, assign) CGFloat mediaBorderRadius;
+@property (nonatomic, assign) CGFloat mediaHeight;
+@property (nonatomic, assign) CGFloat mediaMaxHeight;
+@property (nonatomic, assign) CGFloat mediaPlaceholder;
 @end
 
 /// Layout results for one block at one width.

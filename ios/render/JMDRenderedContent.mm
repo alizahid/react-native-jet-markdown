@@ -265,11 +265,9 @@ static CGSize JMDUsedSize(NSTextStorage *storage) {
       break;
     }
     case JMDBlockKindVideo:
-      measured.height = width * 9.0 / 16.0;
-      measured.contentWidth = width;
-      break;
     case JMDBlockKindImage: {
-      NSArray<NSNumber *> *known = block.imageUrl != nil ? imageSizes[block.imageUrl] : nil;
+      NSString *key = block.intrinsicSizeKey;
+      NSArray<NSNumber *> *known = key != nil ? imageSizes[key] : nil;
       CGFloat displayH;
       CGFloat displayW;
       if (known.count == 2 && known[0].doubleValue > 0 && known[1].doubleValue > 0) {
@@ -277,18 +275,18 @@ static CGSize JMDUsedSize(NSTextStorage *storage) {
         const CGFloat intrinsicH = known[1].doubleValue;
         const CGFloat scale = MIN(width / intrinsicW, 1.0);
         displayH = intrinsicH * scale;
-        if (block.imageHeight > 0) {
-          displayH = block.imageHeight;
+        if (block.mediaHeight > 0) {
+          displayH = block.mediaHeight;
         }
-        if (block.imageMaxHeight > 0) {
-          displayH = MIN(displayH, block.imageMaxHeight);
+        if (block.mediaMaxHeight > 0) {
+          displayH = MIN(displayH, block.mediaMaxHeight);
         }
         displayW = MIN(intrinsicW * displayH / intrinsicH, width);
       } else {
         // Full-width placeholder until the intrinsic size is known.
-        displayH = block.imageHeight > 0 ? block.imageHeight : block.imagePlaceholder;
-        if (block.imageMaxHeight > 0) {
-          displayH = MIN(displayH, block.imageMaxHeight);
+        displayH = block.mediaHeight > 0 ? block.mediaHeight : block.mediaPlaceholder;
+        if (block.mediaMaxHeight > 0) {
+          displayH = MIN(displayH, block.mediaMaxHeight);
         }
         displayW = width;
       }
