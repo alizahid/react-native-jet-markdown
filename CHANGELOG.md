@@ -1,10 +1,17 @@
 # Changelog
 
-## Unreleased
+## 1.2.0
 
 ### Added
 
 - Image captions: a block image's non-empty alt text renders as a caption below it, inside the image block at the image's width. Style it with the new `styles.caption` (`MarkdownCaptionStyle`): text styles plus `marginTop` for spacing and `textAlign` for alignment within the image. `defaultStyles`: 14pt, muted, `marginTop` 6. Use empty alt text to omit it.
+- Tapping a caption fires `onImagePress` with the image's frame (excluding the caption).
+
+### Compatibility
+
+- Block images with alt text now show it as a caption. Use empty alt text (`![](…)`) to keep the previous look.
+- Image `backgroundColor` and `borderRadius` apply to the image only, not the caption below it.
+- No breaking API changes from 1.1.0.
 
 ## 1.1.0
 
