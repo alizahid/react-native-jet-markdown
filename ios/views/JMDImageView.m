@@ -2,9 +2,13 @@
 
 #import <SDWebImage/SDWebImage.h>
 
+#import "JMDBlockTextView.h"
+
 @implementation JMDImageView {
   JMDBlock *_block;
   SDAnimatedImageView *_imageView;
+  JMDBlockTextView *_captionView;
+  CGFloat _captionHeight;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -29,11 +33,32 @@
   return _block.imageUrl;
 }
 
-- (void)bind:(JMDBlock *)block {
+- (UIView *)mediaView {
+  return _imageView;
+}
+
+- (void)bind:(JMDMeasuredBlock *)measured {
+  JMDBlock *block = measured.block;
   _block = block;
-  self.backgroundColor = block.mediaBackground ?: UIColor.clearColor;
-  self.layer.cornerRadius = block.mediaBorderRadius;
-  self.layer.masksToBounds = block.mediaBorderRadius > 0;
+  _imageView.backgroundColor = block.mediaBackground ?: UIColor.clearColor;
+  _imageView.layer.cornerRadius = block.mediaBorderRadius;
+  _imageView.layer.masksToBounds = block.mediaBorderRadius > 0;
+
+  if (measured.textStorage != nil) {
+    if (_captionView == nil) {
+      _captionView = [[JMDBlockTextView alloc] initWithFrame:CGRectZero];
+      // Skipped by the host's hit walk, so caption taps open the image.
+      _captionView.userInteractionEnabled = NO;
+      [self addSubview:_captionView];
+    }
+    _captionView.hidden = NO;
+    [_captionView bindTextStorage:measured.textStorage];
+    _captionHeight = block.captionMarginTop + measured.textHeight;
+  } else {
+    _captionView.hidden = YES;
+    _captionHeight = 0;
+  }
+  [self setNeedsLayout];
 
   NSString *url = block.imageUrl ?: @"";
   if (url.length == 0) {
@@ -62,7 +87,11 @@
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-  _imageView.frame = self.bounds;
+  const CGSize size = self.bounds.size;
+  _imageView.frame = CGRectMake(0, 0, size.width, MAX(size.height - _captionHeight, 0));
+  _captionView.frame = CGRectMake(
+      0, CGRectGetMaxY(_imageView.frame) + _block.captionMarginTop, size.width,
+      MAX(_captionHeight - _block.captionMarginTop, 0));
 }
 
 @end

@@ -71,6 +71,10 @@ Unknown size (placeholder then resize):
 
 ![unknown](https://picsum.photos/id/1025/500/300)
 
+Captioned (alt text, centered under a narrow image):
+
+![I know, I know, they're lovely. I'm glad I ended up making two because it just feels better with the dual monitor setup.](https://picsum.photos/id/1060/240/160)
+
 Broken URL (placeholder stays):
 
 ![broken](https://example.invalid/nope.png)
@@ -103,6 +107,7 @@ const styles: MarkdownStyles = mergeStyles({
   },
   paragraph: { fontSize: 16, color: "#1F2937" },
   video: { borderRadius: 12, maxHeight: 320 },
+  caption: { textAlign: "center" },
   bold: { color: "#B91C1C" },
   italic: { color: "#7C3AED" },
   strikethrough: { color: "#9CA3AF" },

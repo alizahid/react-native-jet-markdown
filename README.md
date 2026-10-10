@@ -122,6 +122,7 @@ Every color accepts platform colors (`PlatformColor`, `DynamicColorIOS`) as well
 | `listMarker` | `width`, `marginLeft`, `color` | Fixed-width marker column. Unstyled: sized to the widest marker. `defaultStyles`: 24. |
 | `listItem` | text | Cascades into item content. |
 | `image` | `borderRadius`, `backgroundColor`, `height`, `maxHeight` | `backgroundColor` shows while loading. |
+| `caption` | text + `marginTop`, `textAlign` | Caption below a block image (its alt text), laid out at the image's width. `marginTop` spaces it from the image; `textAlign` (`left`/`center`/`right`) aligns it within the image. `defaultStyles`: 14pt, muted, `marginTop` 6. |
 | `video` | `borderRadius`, `backgroundColor`, `height`, `maxHeight` | Same sizing as images; iOS only. `backgroundColor` shows while loading. |
 | `table` | layout + `minColumnWidth`, `maxColumnWidth` | Unstyled: natural column widths. `defaultStyles`: clamps to `[44, 320]`. |
 | `tableRow` | layout | Base for all rows. `defaultStyles`: 1pt bottom-border separator. |
@@ -141,7 +142,7 @@ Mentions are plain markdown links with custom schemes — `[@ali](users://ali)`,
 
 ### Images
 
-A paragraph containing only an image renders as a block image, aspect-fit to the container width. Pass `images` to pre-size known images and avoid layout shift. Loading runs on SDWebImage (iOS) and Glide (Android) — the same cores expo-image uses — with memory + disk caches, request dedupe, and animated GIF playback (plus APNG on iOS).
+A paragraph containing only an image renders as a block image, aspect-fit to the container width. Non-empty alt text renders as a caption below it (`![A sunset over the bay](…)`), part of the image block and styled by `styles.caption`; use empty alt text (`![](…)`) for no caption. Tapping the caption fires `onImagePress` like the image, with the image's frame. Pass `images` to pre-size known images and avoid layout shift. Loading runs on SDWebImage (iOS) and Glide (Android) — the same cores expo-image uses — with memory + disk caches, request dedupe, and animated GIF playback (plus APNG on iOS).
 
 ### Inline videos
 

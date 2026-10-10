@@ -6,6 +6,7 @@ import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.RectF
 import android.graphics.drawable.Drawable
+import android.text.StaticLayout
 import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -13,16 +14,19 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.jetmarkdown.render.Block
+import com.jetmarkdown.render.MeasuredBlock
 
 /**
  * One markdown image, loaded through Glide: animated GIF playback,
  * downsampling, memory + disk caches, in-flight request sharing, and
  * cancellation when the view is rebound. Background shows while loading
- * (and stays for broken URLs); rounded corners clip both.
+ * (and stays for broken URLs); rounded corners clip both. An alt-text
+ * caption draws below the image, inside this view's bottom padding.
  */
 @SuppressLint("AppCompatCustomView")
 class MarkdownImageView(context: Context) : ImageView(context) {
   private var block: Block.Image? = null
+  private var caption: StaticLayout? = null
   private val clipPath = Path()
 
   var host: MarkdownHost? = null
@@ -39,14 +43,18 @@ class MarkdownImageView(context: Context) : ImageView(context) {
           location[0] / density,
           location[1] / density,
           width / density,
-          height / density,
+          (height - paddingBottom) / density,
         )
       }
     }
   }
 
-  fun bind(image: Block.Image) {
+  fun bind(measured: MeasuredBlock, image: Block.Image) {
     block = image
+    caption = measured.textLayout
+    // Bottom padding confines the bitmap (FIT_CENTER) to the image area.
+    setPadding(0, 0, 0, caption?.let { (image.captionMarginTopPx + it.height).toInt() } ?: 0)
+    contentDescription = caption?.text
     // Application context: requests outlive transient view detaches during
     // list recycling and are replaced (cancelling the old one) on rebind.
     Glide.with(context.applicationContext)
@@ -92,15 +100,19 @@ class MarkdownImageView(context: Context) : ImageView(context) {
   fun unbind() {
     host = null
     block = null
+    caption = null
     Glide.with(context.applicationContext).clear(this)
   }
 
   override fun onDraw(canvas: Canvas) {
     val image = block ?: return
+    val imageHeight = (height - paddingBottom).toFloat()
+    val save = canvas.save()
+    canvas.clipRect(0f, 0f, width.toFloat(), imageHeight)
     if (image.borderRadiusPx > 0) {
       clipPath.reset()
       clipPath.addRoundRect(
-        RectF(0f, 0f, width.toFloat(), height.toFloat()),
+        RectF(0f, 0f, width.toFloat(), imageHeight),
         image.borderRadiusPx,
         image.borderRadiusPx,
         Path.Direction.CW,
@@ -109,5 +121,12 @@ class MarkdownImageView(context: Context) : ImageView(context) {
     }
     image.backgroundColor?.let { canvas.drawColor(it) }
     super.onDraw(canvas)
+    canvas.restoreToCount(save)
+    caption?.let {
+      canvas.save()
+      canvas.translate(0f, imageHeight + image.captionMarginTopPx)
+      it.draw(canvas)
+      canvas.restore()
+    }
   }
 }

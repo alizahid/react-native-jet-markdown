@@ -231,7 +231,7 @@ static BOOL JMDIsScrollInProgress(UIView *view) {
   if ([view isKindOfClass:[JMDImageView class]]) {
     NSString *url = ((JMDImageView *)view).imageUrl;
     if (url != nil) {
-      [self imagePressed:url frame:JMDScreenFrameOfView(view)];
+      [self imagePressed:url frame:JMDScreenFrameOfView(((JMDImageView *)view).mediaView)];
     }
     return;
   }

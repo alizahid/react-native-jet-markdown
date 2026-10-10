@@ -111,6 +111,14 @@ export interface MarkdownImageStyle {
   maxHeight?: number;
 }
 
+/** Caption drawn below a block image from its alt text, at the image's width. */
+export interface MarkdownCaptionStyle extends MarkdownTextStyle {
+  /** Space between the image and the caption. */
+  marginTop?: number;
+  /** Alignment within the image's width. Default `left`. */
+  textAlign?: "left" | "center" | "right";
+}
+
 /** Inline videos share the same sizing and appearance options as images. */
 export type MarkdownVideoStyle = MarkdownImageStyle;
 
@@ -205,6 +213,7 @@ export type MarkdownHeadingLevel = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 export interface MarkdownStyles {
   blockQuote?: MarkdownTextStyle & MarkdownLayoutStyle;
   bold?: MarkdownTextStyle;
+  caption?: MarkdownCaptionStyle;
   codeBlock?: MarkdownTextStyle & MarkdownLayoutStyle;
   divider?: MarkdownDividerStyle;
   /** Vertical spacing between blocks. The `style` prop's `gap` wins. */

@@ -79,7 +79,7 @@
           ? (JMDImageView *)old
           : [[JMDImageView alloc] initWithFrame:CGRectZero];
       view.host = self.host;
-      [view bind:measured.block];
+      [view bind:measured];
       return view;
     }
     case JMDBlockKindVideo: {

@@ -292,6 +292,12 @@ static CGSize JMDUsedSize(NSTextStorage *storage) {
       }
       measured.height = displayH;
       measured.contentWidth = displayW;
+      if (block.captionText != nil) {
+        NSTextStorage *storage = [self layoutText:block.captionText width:displayW];
+        measured.textStorage = storage;
+        measured.textHeight = JMDUsedSize(storage).height;
+        measured.height += block.captionMarginTop + measured.textHeight;
+      }
       break;
     }
   }

@@ -91,6 +91,20 @@ describe("serializeStyles", () => {
     expect(serializeStyles({ video: {} }, undefined)).toBe("{}");
   });
 
+  test("caption carries marginTop and textAlign alongside text keys", () => {
+    const out = parse(
+      serializeStyles(
+        { caption: { fontSize: 14, marginTop: 6, textAlign: "center" } },
+        undefined
+      )
+    );
+    expect(out.caption).toEqual({
+      fontSize: 14,
+      marginTop: 6,
+      textAlign: "center",
+    });
+  });
+
   test("main padding shorthand expands into sides", () => {
     const out = parse(
       serializeStyles(undefined, { padding: 16, paddingTop: 4, gap: 8 })

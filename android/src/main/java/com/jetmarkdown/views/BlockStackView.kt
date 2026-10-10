@@ -75,7 +75,7 @@ class BlockStackView(context: Context) : ViewGroup(context) {
       }
       is Block.Image -> (old as? MarkdownImageView ?: MarkdownImageView(context)).apply {
         this.host = this@BlockStackView.host
-        bind(block)
+        bind(measuredBlock, block)
       }
     }
   }

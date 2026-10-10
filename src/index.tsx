@@ -6,6 +6,7 @@ export type {
   FontVariant,
   FontWeight,
   JetMarkdownViewProps,
+  MarkdownCaptionStyle,
   MarkdownContainerStyle,
   MarkdownDividerStyle,
   MarkdownHeadingLevel,

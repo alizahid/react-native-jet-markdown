@@ -417,7 +417,12 @@ class BlockBuilder {
       case NodeType::Heading: {
         const Node *image = singleImageChild(node);
         if (image != nullptr) {
-          [out addObject:mediaBlock(image)];
+          JMDBlock *block = mediaBlock(image);
+          // Non-empty alt text doubles as a caption below the image.
+          if (image->text.find_first_not_of(" \t\r\n") != std::string::npos) {
+            captionImage(block, image, inherited);
+          }
+          [out addObject:block];
         } else if (!hasVideo(node)) {
           [out addObject:textBlock(node, inherited)];
         } else {
@@ -586,6 +591,46 @@ class BlockBuilder {
     block.mediaMaxHeight = number(section, @"maxHeight", 0);
     block.mediaPlaceholder = 200;
     return block;
+  }
+
+  // The caption lays out inside the image block at the image's width, so
+  // textAlign lines it up with the image rather than the container.
+  void captionImage(JMDBlock *block, const Node *image, NSArray<JMDTextStyle *> *inherited) {
+    Node text;
+    text.type = NodeType::Text;
+    text.text = image->text;
+    Node caption;
+    caption.type = NodeType::Paragraph;
+    caption.children.push_back(&text);
+    NSMutableAttributedString *output = [textBlock(
+        &caption, appendStyle(inherited, [styles_ textStyleFor:@"caption"])).attributedText
+        mutableCopy];
+
+    NSDictionary *section = [styles_ rawSectionFor:@"caption"];
+    NSString *align = [section[@"textAlign"] isKindOfClass:[NSString class]]
+        ? section[@"textAlign"]
+        : nil;
+    NSTextAlignment alignment = [align isEqualToString:@"center"] ? NSTextAlignmentCenter
+        : [align isEqualToString:@"right"]                        ? NSTextAlignmentRight
+                                                                  : NSTextAlignmentNatural;
+    const NSRange all = NSMakeRange(0, output.length);
+    [output enumerateAttribute:NSParagraphStyleAttributeName
+                       inRange:all
+                       options:0
+                    usingBlock:^(NSParagraphStyle *value, NSRange range, BOOL *stop) {
+                      NSMutableParagraphStyle *paragraph =
+                          value != nil ? [value mutableCopy] : [NSMutableParagraphStyle new];
+                      paragraph.alignment = alignment;
+                      [output addAttribute:NSParagraphStyleAttributeName
+                                     value:paragraph
+                                     range:range];
+                    }];
+
+    NSNumber *marginTop = [section[@"marginTop"] isKindOfClass:[NSNumber class]]
+        ? section[@"marginTop"]
+        : @0;
+    block.captionText = output;
+    block.captionMarginTop = marginTop.doubleValue;
   }
 
   JMDBlock *listBlock(const Node *node, NSArray<JMDTextStyle *> *inherited) {

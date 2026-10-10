@@ -16,6 +16,12 @@ export const defaultStyles: MarkdownStyles = {
     borderLeftWidth: 3,
     paddingLeft: 12,
   },
+  caption: {
+    color: "rgba(0, 0, 0, 0.6)",
+    fontSize: 12,
+    lineHeight: 16,
+    marginTop: 4,
+  },
   codeBlock: {
     backgroundColor: "rgba(0, 0, 0, 0.08)",
     borderRadius: 6,

@@ -75,8 +75,11 @@ FOUNDATION_EXPORT NSAttributedStringKey const JMDRunBackgroundAttributeName;
 @property (nonatomic, copy, nullable) NSString *videoUrl;
 @property (nonatomic, copy, nullable) NSString *videoPoster;
 
-// Image blocks.
+// Image blocks. The caption (alt text) sits below the image, inside the
+// block, laid out at the image's rendered width.
 @property (nonatomic, copy, nullable) NSString *imageUrl;
+@property (nonatomic, strong, nullable) NSAttributedString *captionText;
+@property (nonatomic, assign) CGFloat captionMarginTop;
 
 // Shared image/video appearance and sizing. Video keys are namespaced so
 // the images prop cannot override video metadata for the same URL.
@@ -93,6 +96,7 @@ FOUNDATION_EXPORT NSAttributedStringKey const JMDRunBackgroundAttributeName;
 @property (nonatomic, strong) JMDBlock *block;
 @property (nonatomic, assign) CGFloat height;
 /// Code: unwrapped content width for the scroller; Text: wrapped text height.
+/// Images: rendered media width; textHeight is the caption's height.
 @property (nonatomic, assign) CGFloat contentWidth;
 @property (nonatomic, assign) CGFloat textHeight;
 @property (nonatomic, strong) NSArray<JMDMeasuredBlock *> *children;

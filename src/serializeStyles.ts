@@ -224,6 +224,14 @@ export function serializeStyles(
       put(out, level, serializeText(styles.headings?.[level]));
     }
     put(out, "paragraph", serializeText(styles.paragraph));
+    if (styles.caption != null) {
+      const caption = serializeText(styles.caption) ?? {};
+      put(caption, "marginTop", styles.caption.marginTop);
+      put(caption, "textAlign", styles.caption.textAlign);
+      if (Object.keys(caption).length > 0) {
+        out.caption = caption;
+      }
+    }
 
     for (const key of ["image", "video"] as const) {
       const style = styles[key];

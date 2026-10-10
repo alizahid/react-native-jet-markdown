@@ -32,6 +32,9 @@ sealed class Block {
 
   class Image(
     val url: String,
+    /** Alt-text caption drawn below the image, inside the block. */
+    val caption: Text?,
+    val captionMarginTopPx: Float,
     val backgroundColor: Int?,
     val borderRadiusPx: Float,
     val heightPx: Float,
@@ -233,7 +236,9 @@ class RenderedContent(
           }
           displayW = widthPx
         }
-        MeasuredBlock(block, displayH, null, displayW, emptyList(), emptyList(), emptyList())
+        val caption = block.caption?.let { staticLayout(it.text, it.paint, displayW.toInt(), wrap = true) }
+        val height = displayH + (caption?.let { block.captionMarginTopPx + it.height } ?: 0f)
+        MeasuredBlock(block, height, caption, displayW, emptyList(), emptyList(), emptyList())
       }
     }
   }

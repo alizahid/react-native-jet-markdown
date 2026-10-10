@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Image captions: a block image's non-empty alt text renders as a caption below it, inside the image block at the image's width. Style it with the new `styles.caption` (`MarkdownCaptionStyle`): text styles plus `marginTop` for spacing and `textAlign` for alignment within the image. `defaultStyles`: 14pt, muted, `marginTop` 6. Use empty alt text to omit it.
+
 ## 1.1.0
 
 Includes the inline video support introduced in `1.1.0-beta.0` and the styling and sizing improvements from `1.1.0-beta.1`.

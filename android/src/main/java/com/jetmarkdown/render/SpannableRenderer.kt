@@ -7,6 +7,7 @@ import android.text.Layout
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
+import android.text.style.AlignmentSpan
 import com.jetmarkdown.parser.MdNode
 import com.jetmarkdown.parser.MdNodeType
 import com.jetmarkdown.render.spans.ChipSpan
@@ -157,7 +158,7 @@ object SpannableRenderer {
       MdNodeType.PARAGRAPH, MdNodeType.HEADING -> {
         val image = singleImageChild(node)
         if (image != null) {
-          out.add(imageBlock(image, context))
+          out.add(imageBlock(image, context, inherited))
         } else {
           out.add(textBlock(node, context, inherited))
         }
@@ -234,10 +235,15 @@ object SpannableRenderer {
     return image
   }
 
-  private fun imageBlock(node: MdNode, context: Context): Block.Image {
+  private fun imageBlock(node: MdNode, context: Context, inherited: TextStyleSpec?): Block.Image {
     val section = context.styles.rawSection("image")
     val density = context.density
+    val captionSection = context.styles.rawSection("caption")
     return Block.Image(
+      // Non-empty alt text doubles as a caption below the image, laid out
+      // at the image's width so textAlign lines it up with the image.
+      caption = if (node.text.isBlank()) null else captionBlock(node, context, inherited),
+      captionMarginTopPx = (captionSection?.optDpOr("marginTop", 0f) ?: 0f) * density,
       url = node.url,
       backgroundColor = section?.let { TextStyleSpec.from(it)?.backgroundColor },
       borderRadiusPx = (section?.optDpOr("borderRadius", 0f) ?: 0f) * density,
@@ -245,6 +251,22 @@ object SpannableRenderer {
       maxHeightPx = (section?.optDpOr("maxHeight", 0f) ?: 0f) * density,
       placeholderPx = 200f * density,
     )
+  }
+
+  private fun captionBlock(node: MdNode, context: Context, inherited: TextStyleSpec?): Block.Text {
+    val caption = MdNode(
+      MdNodeType.PARAGRAPH, "", "", 0, false, 1,
+      listOf(MdNode(MdNodeType.TEXT, node.text, "", 0, false, 1, emptyList())),
+    )
+    val block = textBlock(caption, context, merge(inherited, context.styles.textStyleFor("caption")))
+    val alignment = when (context.styles.rawSection("caption")?.optString("textAlign")) {
+      "center" -> Layout.Alignment.ALIGN_CENTER
+      "right" -> Layout.Alignment.ALIGN_OPPOSITE
+      else -> return block
+    }
+    val text = SpannableStringBuilder(block.text)
+    text.setSpan(AlignmentSpan.Standard(alignment), 0, text.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+    return Block.Text(text, block.paint, block.spoilerColor, block.spoilerRadiusPx)
   }
 
   private fun listBlock(node: MdNode, context: Context, inherited: TextStyleSpec?): Block.ListBlock {
