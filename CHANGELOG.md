@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.3.0](https://github.com/alizahid/react-native-jet-markdown/compare/v1.2.0...v1.3.0) (2026-10-26)
+
+
+### Bug Fixes
+
+* render stray numbered lines like "1990." as text ([5b08ea7](https://github.com/alizahid/react-native-jet-markdown/commit/5b08ea71603e9e1353dfeb5a6c79c46e4726b25d))
+
 ## 1.2.0
 
 ### Added
