@@ -320,11 +320,15 @@ int onEnterBlock(MD_BLOCKTYPE type, void* detail, void* userdata) {
       Node* node = state->push(NodeType::List);
       node->ordered = true;
       node->startIndex = static_cast<int32_t>(d->start);
+      node->delimiter = d->mark_delimiter;
       break;
     }
-    case MD_BLOCK_LI:
-      state->push(NodeType::ListItem);
+    case MD_BLOCK_LI: {
+      auto* d = static_cast<MD_BLOCK_LI_DETAIL*>(detail);
+      Node* node = state->push(NodeType::ListItem);
+      node->startIndex = static_cast<int32_t>(d->number);
       break;
+    }
     case MD_BLOCK_HR:
       state->push(NodeType::ThematicBreak);
       state->pop();
@@ -551,6 +555,77 @@ int onText(MD_TEXTTYPE type, const MD_CHAR* text, MD_SIZE size, void* userdata) 
   return 0;
 }
 
+bool isBlock(NodeType type) {
+  switch (type) {
+    case NodeType::Heading:
+    case NodeType::Paragraph:
+    case NodeType::BlockQuote:
+    case NodeType::CodeBlock:
+    case NodeType::List:
+    case NodeType::Table:
+    case NodeType::ThematicBreak:
+      return true;
+    default:
+      return false;
+  }
+}
+
+// "1990. Reds were…" is an ordered list to CommonMark, but in comments it is
+// prose. An ordered list's items become paragraphs (marker kept as literal
+// text) until one numbered 1, or continuing the previous ordered list among
+// its siblings ("1. a\n\ntext\n\n2. b"); that item and the rest stay a list.
+// CommonMark folds "1990. a\n\n1. b" into one list, hence the per-item check.
+void demoteStrayOrderedLists(MarkdownDocument& doc, Node* node) {
+  std::vector<Node*> children;
+  int32_t nextIndex = -1;
+  for (Node* child : node->children) {
+    demoteStrayOrderedLists(doc, child);
+    if (child->type != NodeType::List || !child->ordered) {
+      children.push_back(child);
+      continue;
+    }
+    auto items = child->children.begin();
+    for (; items != child->children.end(); ++items) {
+      Node* item = *items;
+      if (item->startIndex == 1 || item->startIndex == nextIndex) {
+        break;
+      }
+      // Tight items hold inline nodes directly; wrap each run in a paragraph.
+      std::vector<Node*> blocks;
+      Node* run = nullptr;
+      for (Node* part : item->children) {
+        if (isBlock(part->type)) {
+          blocks.push_back(part);
+          run = nullptr;
+          continue;
+        }
+        if (run == nullptr) {
+          run = doc.arena.alloc(NodeType::Paragraph);
+          blocks.push_back(run);
+        }
+        run->children.push_back(part);
+      }
+      Node* marker = doc.arena.alloc(NodeType::Text);
+      marker->text = std::to_string(item->startIndex) + child->delimiter;
+      marker->verbatim = true;
+      if (!blocks.empty() && blocks.front()->type == NodeType::Paragraph) {
+        marker->text += ' ';
+      } else {
+        blocks.insert(blocks.begin(), doc.arena.alloc(NodeType::Paragraph));
+      }
+      blocks.front()->children.insert(blocks.front()->children.begin(), marker);
+      children.insert(children.end(), blocks.begin(), blocks.end());
+    }
+    if (items != child->children.end()) {
+      child->startIndex = (*items)->startIndex;
+      child->children.erase(child->children.begin(), items);
+      nextIndex = child->startIndex + static_cast<int32_t>(child->children.size());
+      children.push_back(child);
+    }
+  }
+  node->children = std::move(children);
+}
+
 } // namespace
 
 std::unique_ptr<MarkdownDocument> parseMarkdown(const std::string& markdown) {
@@ -584,6 +659,7 @@ std::unique_ptr<MarkdownDocument> parseMarkdown(const std::string& markdown) {
     return doc;
   }
 
+  demoteStrayOrderedLists(*doc, doc->root);
   applyInlineExtensions(*doc);
   return doc;
 }

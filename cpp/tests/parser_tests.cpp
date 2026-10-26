@@ -131,10 +131,35 @@ int main() {
 
   expectContains("block quote", "> quoted", R"("type":"blockQuote")");
 
+  // --- Ordered lists not starting at 1 are prose unless they continue ---
+  expectAst(
+      "year at line start is text",
+      "1990. Reds won",
+      R"({"type":"document","children":[{"type":"paragraph","children":[{"type":"text","text":"1990. Reds won"}]}]})");
+  expectNotContains("stray start is not a list", "3) three\n4) four", R"("type":"list")");
+  expectContains("stray start keeps delimiter", "3) three\n4) four", R"({"type":"paragraph","children":[{"type":"text","text":"4) four"}]})");
+  expectAst(
+      "stray empty item",
+      "7.",
+      R"({"type":"document","children":[{"type":"paragraph","children":[{"type":"text","text":"7."}]}]})");
   expectContains(
-      "ordered list start",
-      "3. three\n4. four",
+      "list continues after interruption",
+      "1. a\n2. b\n\ntext\n\n3. c",
       R"("type":"list","ordered":true,"start":3)");
+  expectAst(
+      "stray item folded into a real list",
+      "1990. Reds\n\n1. foo\n2. bar\n\nsome text\n\n3. baz",
+      R"({"type":"document","children":[{"type":"paragraph","children":[{"type":"text","text":"1990. Reds"}]},{"type":"list","ordered":true,"children":[{"type":"listItem","children":[{"type":"paragraph","children":[{"type":"text","text":"foo"}]}]},{"type":"listItem","children":[{"type":"paragraph","children":[{"type":"text","text":"bar"}]}]}]},{"type":"paragraph","children":[{"type":"text","text":"some text"}]},{"type":"list","ordered":true,"start":3,"children":[{"type":"listItem","children":[{"type":"text","text":"baz"}]}]}]})");
+  expectContains("consecutive years keep their numbers", "1990. a\n1991. b",
+      R"({"type":"paragraph","children":[{"type":"text","text":"1991. b"}]})");
+  expectNotContains(
+      "list gap is not a continuation",
+      "1. a\n\ntext\n\n5. c",
+      R"("start":5)");
+  expectContains(
+      "nested stray list demoted inside item",
+      "- a\n\n  1990. b",
+      R"({"type":"listItem","children":[{"type":"paragraph","children":[{"type":"text","text":"a"}]},{"type":"paragraph","children":[{"type":"text","text":"1990. b"}]}]})");
 
   expectContains("thematic break", "a\n\n---\n\nb", R"("type":"thematicBreak")");
 

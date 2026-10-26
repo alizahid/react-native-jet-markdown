@@ -4678,6 +4678,11 @@ struct MD_BLOCK_tag {
      * MD_BLOCK_OL:     Start item number.
      */
     MD_SIZE n_lines;
+
+    /* JETMARKDOWN PATCH: MD_BLOCK_LI of an ordered list: the item's own
+     * number as written ("1990." -> 1990), so renderers can tell a stray
+     * "1990. text" item from the real list items that follow it. */
+    unsigned item_number;
 };
 
 struct MD_CONTAINER_tag {
@@ -4926,6 +4931,7 @@ md_process_all_blocks(MD_CTX* ctx)
                 break;
 
             case MD_BLOCK_LI:
+                det.li.number = block->item_number;
                 det.li.is_task = (block->data != 0);
                 det.li.task_mark = (CHAR) block->data;
                 det.li.task_mark_offset = (OFF) block->n_lines;
@@ -5022,6 +5028,7 @@ md_start_new_block(MD_CTX* ctx, const MD_LINE_ANALYSIS* line)
     block = (MD_BLOCK*) md_push_block_bytes(ctx, sizeof(MD_BLOCK));
     if(block == NULL)
         return -1;
+    block->item_number = 0;
 
     switch(line->type) {
         case MD_LINE_HR:
@@ -5187,6 +5194,13 @@ md_add_line_into_current_block(MD_CTX* ctx, const MD_LINE_ANALYSIS* analysis)
     return 0;
 }
 
+/* JETMARKDOWN PATCH: the block md_push_container_bytes() just appended. */
+static MD_BLOCK*
+md_last_block(MD_CTX* ctx)
+{
+    return (MD_BLOCK*) ((char*)ctx->block_bytes + ctx->n_block_bytes - sizeof(MD_BLOCK));
+}
+
 static int
 md_push_container_bytes(MD_CTX* ctx, MD_BLOCKTYPE type, unsigned start,
                         unsigned data, unsigned flags)
@@ -5204,6 +5218,7 @@ md_push_container_bytes(MD_CTX* ctx, MD_BLOCKTYPE type, unsigned start,
     block->flags = flags;
     block->data = data;
     block->n_lines = start;
+    block->item_number = 0;
 
 abort:
     return ret;
@@ -5684,6 +5699,8 @@ md_enter_child_containers(MD_CTX* ctx, int n_children)
                                 c->task_mark_off,
                                 (c->is_task ? CH(c->task_mark_off) : 0),
                                 MD_BLOCK_CONTAINER_OPENER));
+                if(is_ordered_list)
+                    md_last_block(ctx)->item_number = c->start;
                 break;
 
             case _T('>'):
@@ -5832,6 +5849,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
     int n_brothers = 0;
     int n_children = 0;
     MD_CONTAINER container = { 0 };
+    unsigned brother_number = 0;  /* JETMARKDOWN PATCH: later mark probes clobber container.start. */
     int prev_line_has_list_loosening_effect = ctx->last_line_has_list_loosening_effect;
     OFF off = beg;
     OFF hr_killer = 0;
@@ -6060,6 +6078,7 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
                 ctx->containers[n_parents].mark_indent = container.mark_indent;
                 ctx->containers[n_parents].contents_indent = container.contents_indent;
 
+                brother_number = container.start;
                 n_brothers++;
                 continue;
             }
@@ -6279,6 +6298,8 @@ md_analyze_line(MD_CTX* ctx, OFF beg, OFF* p_end,
                     container.task_mark_off,
                     (container.is_task ? CH(container.task_mark_off) : 0),
                     MD_BLOCK_CONTAINER_OPENER));
+        if(ISANYOF2_(ctx->containers[n_parents].ch, _T('.'), _T(')')))
+            md_last_block(ctx)->item_number = brother_number;
         ctx->containers[n_parents].is_task = container.is_task;
         ctx->containers[n_parents].task_mark_off = container.task_mark_off;
     }

@@ -50,6 +50,7 @@ enum class CellAlign : uint8_t {
 //   Link:       url = destination, children = label
 //   Heading:    level = 1..6
 //   List:       ordered, startIndex
+//   ListItem:   startIndex = ordered item's number as written
 //   TableRow:   level = 1 when header row
 //   TableCell:  level = CellAlign
 struct Node {
@@ -63,6 +64,8 @@ struct Node {
   // de-fanged the characters), so they never merge with neighbours.
   bool verbatim = false;
   int32_t startIndex = 1;
+  // Ordered list marker delimiter ('.' or ')'); parse-time only, not serialized.
+  char delimiter = '.';
   std::vector<Node*> children;
 };
 

@@ -254,6 +254,7 @@ typedef struct MD_BLOCK_LI_DETAIL {
     int is_task;            /* Can be non-zero only with MD_FLAG_TASKLISTS */
     MD_CHAR task_mark;      /* If is_task, then one of 'x', 'X' or ' '. Undefined otherwise. */
     MD_OFFSET task_mark_offset;  /* If is_task, then offset in the input of the char between '[' and ']'. */
+    unsigned number;        /* JETMARKDOWN PATCH: ordered item's number as written; 0 for bullets. */
 } MD_BLOCK_LI_DETAIL;
 
 /* Detailed info for MD_BLOCK_H. */

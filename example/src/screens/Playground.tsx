@@ -19,7 +19,16 @@ A paragraph with **bold**, _italic_, \`inline code\`, a [link](https://example.c
 
 ||A spoiler to reveal||
 
-Lorem ipsum dolor sit amet, >!consectetur adipiscing elit. Mauris eget felis ut mi!< vehicula ||condimentum. Donec molestie erat sodales nisi|| viverra varius`;
+Lorem ipsum dolor sit amet, >!consectetur adipiscing elit. Mauris eget felis ut mi!< vehicula ||condimentum. Donec molestie erat sodales nisi|| viverra varius
+
+1990. Reds were given no chance although the led wire to wire in NL. Tom Browning going MIA in game two. Without steriods half of those A's are HOF.
+
+1. foo
+2. bar
+
+some text
+
+3. baz`;
 
 interface Theme {
   /** Base text styles: cascade into every text element from the style prop. */
