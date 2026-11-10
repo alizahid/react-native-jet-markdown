@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.5.0](https://github.com/alizahid/react-native-jet-markdown/compare/v1.4.0...v1.5.0) (2026-11-10)
+
+
+### Features
+
+* fontVariant for orderedListMarker ([f9fd4ee](https://github.com/alizahid/react-native-jet-markdown/commit/f9fd4eebfdbc8e0ef0a21f90c8414d3ecc7f7768))
+
 # [1.4.0](https://github.com/alizahid/react-native-jet-markdown/compare/v1.3.0...v1.4.0) (2026-11-10)
 
 
