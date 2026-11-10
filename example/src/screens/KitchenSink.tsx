@@ -54,6 +54,13 @@ Both ||discord style|| and >!reddit style!< parse already.
 1. ordered one
 2. ordered two
 3. ordered three
+4. four
+5. five
+6. six
+7. seven
+8. eight
+9. nine
+10. ten, right-aligned on the dot
 
 \`\`\`ts
 function reallyLongFunctionName(parameter: string, another: number): Promise<void> {
@@ -108,6 +115,12 @@ const styles: MarkdownStyles = mergeStyles({
   paragraph: { fontSize: 16, color: "#1F2937" },
   video: { borderRadius: 12, maxHeight: 320 },
   caption: { textAlign: "center" },
+  orderedListMarker: {
+    color: "#1D4ED8",
+    marginRight: 6,
+    textAlign: "right",
+    width: 24,
+  },
   bold: { color: "#B91C1C" },
   italic: { color: "#7C3AED" },
   strikethrough: { color: "#9CA3AF" },

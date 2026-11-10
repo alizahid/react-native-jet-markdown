@@ -147,8 +147,18 @@ export interface MarkdownListStyle {
 
 export interface MarkdownListMarkerStyle {
   color?: ColorValue;
+  /** Left and right margin; `marginLeft`/`marginRight` win. */
+  marginHorizontal?: number;
   marginLeft?: number;
+  /** Space between the marker column and the item content. */
+  marginRight?: number;
   width?: number;
+}
+
+export interface MarkdownOrderedListMarkerStyle
+  extends MarkdownListMarkerStyle {
+  /** Alignment within the marker column. Default `left`. */
+  textAlign?: "left" | "center" | "right";
 }
 
 /**
@@ -213,6 +223,8 @@ export type MarkdownHeadingLevel = "h1" | "h2" | "h3" | "h4" | "h5" | "h6";
 export interface MarkdownStyles {
   blockQuote?: MarkdownTextStyle & MarkdownLayoutStyle;
   bold?: MarkdownTextStyle;
+  /** Bullet-list overrides layered on top of `listMarker`. */
+  bulletListMarker?: MarkdownListMarkerStyle;
   caption?: MarkdownCaptionStyle;
   codeBlock?: MarkdownTextStyle & MarkdownLayoutStyle;
   divider?: MarkdownDividerStyle;
@@ -225,8 +237,11 @@ export interface MarkdownStyles {
   link?: MarkdownLinkStyle;
   list?: MarkdownListStyle;
   listItem?: MarkdownTextStyle;
+  /** Base for both marker kinds; `bulletListMarker`/`orderedListMarker` layer on top. */
   listMarker?: MarkdownListMarkerStyle;
   mention?: MarkdownMentionStyle;
+  /** Ordered-list overrides layered on top of `listMarker`. */
+  orderedListMarker?: MarkdownOrderedListMarkerStyle;
   paragraph?: MarkdownTextStyle;
   spoiler?: MarkdownSpoilerStyle;
   strikethrough?: MarkdownTextStyle;

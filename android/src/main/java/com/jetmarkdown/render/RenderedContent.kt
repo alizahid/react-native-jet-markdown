@@ -26,6 +26,7 @@ sealed class Block {
     val marginLeftPx: Float,
     val markerWidthPx: Float,
     val markerMarginLeftPx: Float,
+    val markerMarginRightPx: Float,
   ) : Block()
 
   class Divider(val color: Int, val thicknessPx: Float) : Block()
@@ -189,7 +190,8 @@ class RenderedContent(
       }
 
       is Block.ListBlock -> {
-        val contentX = block.marginLeftPx + block.markerMarginLeftPx + block.markerWidthPx
+        val contentX =
+          block.marginLeftPx + block.markerMarginLeftPx + block.markerWidthPx + block.markerMarginRightPx
         val contentWidth = (widthPx - contentX).coerceAtLeast(1f)
         val markerLayouts = ArrayList<StaticLayout>(block.rows.size)
         val rowContents = ArrayList<List<MeasuredBlock>>(block.rows.size)

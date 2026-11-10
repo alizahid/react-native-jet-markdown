@@ -270,7 +270,7 @@ static void JMDApplyBox(UIView *view, JMDLayoutStyle *style) {
   [super layoutSubviews];
   JMDBlock *block = _measured.block;
   const CGFloat markerX = block.listMarginLeft + block.markerMarginLeft;
-  const CGFloat contentX = markerX + block.markerWidth;
+  const CGFloat contentX = markerX + block.markerWidth + block.markerMarginRight;
   const CGFloat contentWidth = _measured.contentWidth;
 
   CGFloat y = 0;

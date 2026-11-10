@@ -18,6 +18,7 @@ export type {
   MarkdownListMarkerStyle,
   MarkdownListStyle,
   MarkdownMentionStyle,
+  MarkdownOrderedListMarkerStyle,
   MarkdownSpoilerStyle,
   MarkdownStyles,
   MarkdownTableStyle,

@@ -153,7 +153,7 @@ static CGSize JMDUsedSize(NSTextStorage *storage) {
     }
     case JMDBlockKindList: {
       const CGFloat contentX =
-          block.listMarginLeft + block.markerMarginLeft + block.markerWidth;
+          block.listMarginLeft + block.markerMarginLeft + block.markerWidth + block.markerMarginRight;
       const CGFloat contentWidth = MAX(width - contentX, 1);
       measured.contentWidth = contentWidth;
       NSMutableArray<NSNumber *> *markerHeights = [NSMutableArray new];

@@ -635,7 +635,8 @@ class BlockBuilder {
 
   JMDBlock *listBlock(const Node *node, NSArray<JMDTextStyle *> *inherited) {
     NSDictionary *listSection = [styles_ rawSectionFor:@"list"];
-    NSDictionary *markerSection = [styles_ rawSectionFor:@"listMarker"];
+    NSDictionary *markerSection =
+        [styles_ rawSectionFor:node->ordered ? @"orderedListMarker" : @"bulletListMarker"];
 
     auto number = [](NSDictionary *dict, NSString *key, CGFloat fallback) -> CGFloat {
       NSNumber *value = [dict[key] isKindOfClass:[NSNumber class]] ? dict[key] : nil;
@@ -646,6 +647,7 @@ class BlockBuilder {
     block.kind = JMDBlockKindList;
     block.listMarginLeft = number(listSection, @"marginLeft", 0);
     block.markerMarginLeft = number(markerSection, @"marginLeft", 0);
+    block.markerMarginRight = number(markerSection, @"marginRight", 0);
 
     NSArray<JMDTextStyle *> *itemInherited =
         appendStyle(inherited, [styles_ textStyleFor:@"listItem"]);
@@ -663,6 +665,18 @@ class BlockBuilder {
       markerAttrs.color = markerColor;
     }
     applyCenteringOffset(markerAttrs);
+    NSMutableDictionary *markerAttributes = [attributesDictionary(markerAttrs) mutableCopy];
+    NSString *align = [markerSection[@"textAlign"] isKindOfClass:[NSString class]]
+        ? markerSection[@"textAlign"]
+        : nil;
+    if ([align isEqualToString:@"center"] || [align isEqualToString:@"right"]) {
+      NSMutableParagraphStyle *paragraph =
+          [markerAttributes[NSParagraphStyleAttributeName] mutableCopy]
+              ?: [NSMutableParagraphStyle new];
+      paragraph.alignment =
+          [align isEqualToString:@"center"] ? NSTextAlignmentCenter : NSTextAlignmentRight;
+      markerAttributes[NSParagraphStyleAttributeName] = paragraph;
+    }
 
     NSMutableArray<JMDListRow *> *rows = [NSMutableArray new];
     int index = node->startIndex;
@@ -675,7 +689,7 @@ class BlockBuilder {
           node->ordered ? [NSString stringWithFormat:@"%d.", index] : @"•";
       JMDListRow *row = [JMDListRow new];
       row.marker = [[NSAttributedString alloc] initWithString:markerText
-                                                    attributes:attributesDictionary(markerAttrs)];
+                                                    attributes:markerAttributes];
       naturalMarkerWidth = MAX(naturalMarkerWidth, ceil(row.marker.size.width));
       row.content = renderBlocks(item->children, itemInherited);
       [rows addObject:row];

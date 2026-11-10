@@ -272,10 +272,11 @@ object SpannableRenderer {
   private fun listBlock(node: MdNode, context: Context, inherited: TextStyleSpec?): Block.ListBlock {
     val styles = context.styles
     val listSection = styles.rawSection("list")
-    val markerSection = styles.rawSection("listMarker")
+    val markerSection = styles.rawSection(if (node.ordered) "orderedListMarker" else "bulletListMarker")
 
     val marginLeft = (listSection?.optDpOr("marginLeft", 0f) ?: 0f) * context.density
     val markerMarginLeft = (markerSection?.optDpOr("marginLeft", 0f) ?: 0f) * context.density
+    val markerMarginRight = (markerSection?.optDpOr("marginRight", 0f) ?: 0f) * context.density
     val markerColor = markerSection?.let { TextStyleSpec.from(it)?.color }
 
     val itemText = merge(inherited, styles.textStyleFor("listItem"))
@@ -288,6 +289,12 @@ object SpannableRenderer {
       markerAttrs = markerAttrs.copy(color = markerColor)
     }
 
+    val markerAlignment = when (markerSection?.optString("textAlign")) {
+      "center" -> Layout.Alignment.ALIGN_CENTER
+      "right" -> Layout.Alignment.ALIGN_OPPOSITE
+      else -> null
+    }
+
     val rows = ArrayList<Block.ListRow>()
     var index = node.startIndex
     var naturalMarkerWidth = 0f
@@ -298,6 +305,9 @@ object SpannableRenderer {
       val markerText = if (node.ordered) "$index." else "•"
       val marker = SpannableStringBuilder()
       appendRun(marker, markerText, markerAttrs)
+      if (markerAlignment != null) {
+        marker.setSpan(AlignmentSpan.Standard(markerAlignment), 0, marker.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+      }
       val markerPaint = basePaint(markerAttrs)
       naturalMarkerWidth =
         maxOf(naturalMarkerWidth, ceil(Layout.getDesiredWidth(marker, markerPaint)))
@@ -314,7 +324,7 @@ object SpannableRenderer {
     // provides the classic fixed width.
     val styledWidth = markerSection?.optDpOr("width", -1f) ?: -1f
     val markerWidth = if (styledWidth >= 0f) styledWidth * context.density else naturalMarkerWidth
-    return Block.ListBlock(rows, marginLeft, markerWidth, markerMarginLeft)
+    return Block.ListBlock(rows, marginLeft, markerWidth, markerMarginLeft, markerMarginRight)
   }
 
   private fun tableBlock(node: MdNode, context: Context, inherited: TextStyleSpec?): Block.Table {

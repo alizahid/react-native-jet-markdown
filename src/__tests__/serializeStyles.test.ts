@@ -105,6 +105,33 @@ describe("serializeStyles", () => {
     });
   });
 
+  test("list markers merge the listMarker base into each kind", () => {
+    const out = parse(
+      serializeStyles(
+        {
+          listMarker: { width: 24, color: "red", marginHorizontal: 4 },
+          bulletListMarker: { color: "blue" },
+          orderedListMarker: { width: 32, textAlign: "right", marginRight: 8 },
+        },
+        undefined
+      )
+    );
+    expect(out.listMarker).toBeUndefined();
+    expect(out.bulletListMarker).toEqual({
+      width: 24,
+      marginLeft: 4,
+      marginRight: 4,
+      color: 0xff_00_00_ff | 0,
+    });
+    expect(out.orderedListMarker).toEqual({
+      width: 32,
+      marginLeft: 4,
+      marginRight: 8,
+      color: 0xff_ff_00_00 | 0,
+      textAlign: "right",
+    });
+  });
+
   test("main padding shorthand expands into sides", () => {
     const out = parse(
       serializeStyles(undefined, { padding: 16, paddingTop: 4, gap: 8 })

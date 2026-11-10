@@ -57,6 +57,7 @@ FOUNDATION_EXPORT NSAttributedStringKey const JMDRunBackgroundAttributeName;
 @property (nonatomic, assign) CGFloat listMarginLeft;
 @property (nonatomic, assign) CGFloat markerWidth;
 @property (nonatomic, assign) CGFloat markerMarginLeft;
+@property (nonatomic, assign) CGFloat markerMarginRight;
 @property (nonatomic, strong, nullable) UIColor *dividerColor;
 @property (nonatomic, assign) CGFloat dividerThickness;
 

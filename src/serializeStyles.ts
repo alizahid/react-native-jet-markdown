@@ -313,13 +313,33 @@ export function serializeStyles(
         out.list = list;
       }
     }
-    if (styles.listMarker != null) {
+    // Native reads one merged section per list kind; the override is put
+    // second so its set fields win over the shared `listMarker` base.
+    const markerKinds = [
+      ["bulletListMarker", styles.bulletListMarker],
+      ["orderedListMarker", styles.orderedListMarker],
+    ] as const;
+    for (const [key, override] of markerKinds) {
       const marker: Serialized = {};
-      put(marker, "width", styles.listMarker.width);
-      put(marker, "marginLeft", styles.listMarker.marginLeft);
-      putColor(marker, "color", styles.listMarker.color);
+      for (const source of [styles.listMarker, override]) {
+        put(marker, "width", source?.width);
+        put(
+          marker,
+          "marginLeft",
+          source?.marginLeft ?? source?.marginHorizontal
+        );
+        put(
+          marker,
+          "marginRight",
+          source?.marginRight ?? source?.marginHorizontal
+        );
+        putColor(marker, "color", source?.color);
+      }
+      if (key === "orderedListMarker") {
+        put(marker, "textAlign", styles.orderedListMarker?.textAlign);
+      }
       if (Object.keys(marker).length > 0) {
-        out.listMarker = marker;
+        out[key] = marker;
       }
     }
     put(out, "listItem", serializeText(styles.listItem));

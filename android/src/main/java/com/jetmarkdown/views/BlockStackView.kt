@@ -277,7 +277,7 @@ class ListBlockView(context: Context) : ViewGroup(context) {
     val list = block ?: return
     val tree = measured ?: return
     val markerX = (list.marginLeftPx + list.markerMarginLeftPx).toInt()
-    val contentX = (markerX + list.markerWidthPx).toInt()
+    val contentX = (markerX + list.markerWidthPx + list.markerMarginRightPx).toInt()
     val contentWidth = tree.contentWidthPx.toInt()
 
     var y = 0

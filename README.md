@@ -119,8 +119,10 @@ Every color accepts platform colors (`PlatformColor`, `DynamicColorIOS`) as well
 | `codeBlock` | text + layout | Always monospace; long lines scroll horizontally. `defaultStyles`: 14pt, 8% black, radius 6, padding 12. |
 | `blockQuote` | text + layout | Text styles cascade into quoted content. `defaultStyles`: 3pt left border, 12pt left padding. |
 | `list` | `marginLeft` | |
-| `listMarker` | `width`, `marginLeft`, `color` | Fixed-width marker column. Unstyled: sized to the widest marker. `defaultStyles`: 24. |
-| `listItem` | text | Cascades into item content. |
+| `listMarker` | `width`, `marginLeft`, `marginRight`, `marginHorizontal`, `color` | Fixed-width marker column, shared by both list kinds. `marginRight` spaces it from the item content; side margins win over `marginHorizontal`. Unstyled: sized to the widest marker. `defaultStyles`: 24. |
+| `bulletListMarker` | same as `listMarker` | Layers over `listMarker` for bullet lists. |
+| `orderedListMarker` | same as `listMarker` + `textAlign` | Layers over `listMarker` for numbered lists. `textAlign` (`left`/`center`/`right`) aligns the number in the marker column; `right` lines up `9.` and `10.` on the dot. Default `left`. |
+| `listItem` | text | Cascades into item content and the marker; a marker style's `color` wins for the marker. |
 | `image` | `borderRadius`, `backgroundColor`, `height`, `maxHeight` | `backgroundColor` shows while loading. |
 | `caption` | text + `marginTop`, `textAlign` | Caption below a block image (its alt text), laid out at the image's width. `marginTop` spaces it from the image; `textAlign` (`left`/`center`/`right`) aligns it within the image. `defaultStyles`: 14pt, muted, `marginTop` 6. |
 | `video` | `borderRadius`, `backgroundColor`, `height`, `maxHeight` | Same sizing as images; iOS only. `backgroundColor` shows while loading. |
