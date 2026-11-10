@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.4.0](https://github.com/alizahid/react-native-jet-markdown/compare/v1.3.0...v1.4.0) (2026-11-10)
+
+
+### Features
+
+* per-kind list marker styles with textAlign and horizontal margins ([f282d5a](https://github.com/alizahid/react-native-jet-markdown/commit/f282d5af37533e401f96f744887e2379e265d7b5))
+
 # [1.3.0](https://github.com/alizahid/react-native-jet-markdown/compare/v1.2.0...v1.3.0) (2026-10-26)
 
 
