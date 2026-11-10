@@ -111,7 +111,12 @@ describe("serializeStyles", () => {
         {
           listMarker: { width: 24, color: "red", marginHorizontal: 4 },
           bulletListMarker: { color: "blue" },
-          orderedListMarker: { width: 32, textAlign: "right", marginRight: 8 },
+          orderedListMarker: {
+            width: 32,
+            textAlign: "right",
+            marginRight: 8,
+            fontVariant: ["tabular-nums"],
+          },
         },
         undefined
       )
@@ -128,6 +133,7 @@ describe("serializeStyles", () => {
       marginLeft: 4,
       marginRight: 8,
       color: 0xff_ff_00_00 | 0,
+      fontVariant: ["tabular-nums"],
       textAlign: "right",
     });
   });

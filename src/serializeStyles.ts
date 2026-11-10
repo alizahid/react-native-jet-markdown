@@ -336,6 +336,7 @@ export function serializeStyles(
         putColor(marker, "color", source?.color);
       }
       if (key === "orderedListMarker") {
+        put(marker, "fontVariant", styles.orderedListMarker?.fontVariant);
         put(marker, "textAlign", styles.orderedListMarker?.textAlign);
       }
       if (Object.keys(marker).length > 0) {

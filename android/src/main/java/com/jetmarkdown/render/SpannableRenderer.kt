@@ -277,7 +277,6 @@ object SpannableRenderer {
     val marginLeft = (listSection?.optDpOr("marginLeft", 0f) ?: 0f) * context.density
     val markerMarginLeft = (markerSection?.optDpOr("marginLeft", 0f) ?: 0f) * context.density
     val markerMarginRight = (markerSection?.optDpOr("marginRight", 0f) ?: 0f) * context.density
-    val markerColor = markerSection?.let { TextStyleSpec.from(it)?.color }
 
     val itemText = merge(inherited, styles.textStyleFor("listItem"))
 
@@ -285,9 +284,8 @@ object SpannableRenderer {
     markerAttrs = context.apply(markerAttrs, "base")
     markerAttrs = context.apply(markerAttrs, "paragraph")
     markerAttrs = context.apply(markerAttrs, itemText)
-    if (markerColor != null) {
-      markerAttrs = markerAttrs.copy(color = markerColor)
-    }
+    // Marker sections carry text keys too (color, fontVariant).
+    markerAttrs = context.apply(markerAttrs, TextStyleSpec.from(markerSection))
 
     val markerAlignment = when (markerSection?.optString("textAlign")) {
       "center" -> Layout.Alignment.ALIGN_CENTER

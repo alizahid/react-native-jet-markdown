@@ -157,6 +157,8 @@ export interface MarkdownListMarkerStyle {
 
 export interface MarkdownOrderedListMarkerStyle
   extends MarkdownListMarkerStyle {
+  /** e.g. `["tabular-nums"]` so every digit has the same width. */
+  fontVariant?: FontVariant[];
   /** Alignment within the marker column. Default `left`. */
   textAlign?: "left" | "center" | "right";
 }

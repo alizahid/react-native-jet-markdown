@@ -117,9 +117,10 @@ const styles: MarkdownStyles = mergeStyles({
   caption: { textAlign: "center" },
   orderedListMarker: {
     color: "#1D4ED8",
+    fontVariant: ["tabular-nums"],
     marginRight: 6,
     textAlign: "right",
-    width: 24,
+    width: 28,
   },
   bold: { color: "#B91C1C" },
   italic: { color: "#7C3AED" },

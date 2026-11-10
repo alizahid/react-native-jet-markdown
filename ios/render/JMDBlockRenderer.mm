@@ -660,10 +660,8 @@ class BlockBuilder {
     for (JMDTextStyle *style in itemInherited) {
       applyStyle(markerAttrs, style, fontScale_);
     }
-    UIColor *markerColor = [JMDTextStyle colorFromJson:markerSection[@"color"]];
-    if (markerColor != nil) {
-      markerAttrs.color = markerColor;
-    }
+    // Marker sections carry text keys too (color, fontVariant).
+    applyStyle(markerAttrs, [JMDTextStyle fromJson:markerSection], fontScale_);
     applyCenteringOffset(markerAttrs);
     NSMutableDictionary *markerAttributes = [attributesDictionary(markerAttrs) mutableCopy];
     NSString *align = [markerSection[@"textAlign"] isKindOfClass:[NSString class]]
